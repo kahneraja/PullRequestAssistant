@@ -1,16 +1,8 @@
 package gateways
 
 import gateways.testDoubles.{GatewayConfigStub, HttpClientStub, TimeProviderStub}
-import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.time.{Millis, Seconds, Span}
-import org.scalatest.{Matchers, _}
 
-class GitHubGatewayTest extends FlatSpec with Matchers with ScalaFutures {
-
-  implicit override val patienceConfig = PatienceConfig(
-    timeout = Span(2, Seconds),
-    interval = Span(20, Millis)
-  )
+class GitHubGatewayTest extends BaseSpec {
 
   val sampleJson = Some(
     """

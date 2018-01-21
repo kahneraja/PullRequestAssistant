@@ -1,17 +1,10 @@
 package useCases
 
 import factories.NotificationMessageFactory
+import gateways.BaseSpec
 import gateways.testDoubles._
-import org.scalatest._
-import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.time.{Millis, Seconds, Span}
 
-class NotifyReviewersUseCaseTest  extends FlatSpec with Matchers with ScalaFutures {
-
-  implicit override val patienceConfig = PatienceConfig(
-    timeout = Span(5, Seconds),
-    interval = Span(500, Millis)
-  )
+class NotifyReviewersUseCaseTest extends BaseSpec {
 
   "NotifyReviewersCaseTest" should "notifies all assigned reviewers on idle pull requests." in {
 

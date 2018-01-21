@@ -1,10 +1,10 @@
 package repositories
 
 import factories.PullRequestFactory
+import gateways.BaseSpec
 import gateways.testDoubles.TimeProviderStub
-import org.scalatest._
 
-class RecentlyCreatedPullRequestFilterTests extends FlatSpec with Matchers {
+class RecentlyCreatedPullRequestFilterTests extends BaseSpec {
 
   "Created 30 minutes ago" should "be recent" in {
     val minutes = 30

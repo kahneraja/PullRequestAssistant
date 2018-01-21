@@ -3,9 +3,8 @@ package gateways
 import java.time.LocalDateTime
 
 import gateways.Extensions._
-import org.scalatest.{FlatSpec, Matchers}
 
-class LocalDateTimeTests extends FlatSpec with Matchers {
+class LocalDateTimeTests extends BaseSpec {
 
   "Midday Saturday" should "be out of office." in {
     val localDateTime = LocalDateTime.of(2018, 1, 6, 12, 0)

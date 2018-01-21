@@ -1,17 +1,10 @@
 package useCases
 
 import factories.NotificationMessageFactory
+import gateways.BaseSpec
 import gateways.testDoubles._
-import org.scalatest._
-import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.time.{Millis, Seconds, Span}
 
-class NotifyRecentlyAssignedUseCaseTest  extends FlatSpec with Matchers with ScalaFutures {
-
-  implicit override val patienceConfig = PatienceConfig(
-    timeout = Span(5, Seconds),
-    interval = Span(500, Millis)
-  )
+class NotifyRecentlyAssignedUseCaseTest extends BaseSpec {
 
   "NotifyRecentlyAssignedCaseTest" should "notifies all recently assigned reviewers" in {
 

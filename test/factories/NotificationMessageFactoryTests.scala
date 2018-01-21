@@ -1,9 +1,9 @@
 package factories
 
+import gateways.BaseSpec
 import gateways.testDoubles.TimeProviderStub
-import org.scalatest._
 
-class NotificationMessageFactoryTests extends FlatSpec with Matchers {
+class NotificationMessageFactoryTests extends BaseSpec {
 
   "NotificationMessage" should "build reviewer message." in {
     val pullRequest = PullRequestFactory.build(

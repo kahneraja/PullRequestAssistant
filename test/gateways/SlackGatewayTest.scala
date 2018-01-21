@@ -1,10 +1,9 @@
 package gateways
 
 import gateways.testDoubles.{GatewayConfigStub, HttpClientSpy}
-import org.scalatest._
 import play.api.libs.json.Json
 
-class SlackGatewayTest extends FlatSpec with Matchers {
+class SlackGatewayTest extends BaseSpec {
 
   "SlackGateway" should "post a new message" in {
     val httpClientSpy = new HttpClientSpy(None, None)
