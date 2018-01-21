@@ -24,7 +24,7 @@ class GitHubGatewayImpl(
   }
 
   def getRepos(): Future[List[Repo]] = {
-    val url = "https://api.github.com/orgs/stashinvest/repos"
+    val url = s"https://${config.githubOrg}/repos"
     val headers: (String, String) = {
       "Authorization" -> s"token ${
         config.githubToken
