@@ -9,7 +9,7 @@ import org.scalatest.time.{Millis, Seconds, Span}
 class NotifyOwnerUseCaseTest  extends FlatSpec with Matchers with ScalaFutures {
 
   implicit override val patienceConfig = PatienceConfig(
-    timeout = Span(2, Seconds),
+    timeout = Span(5, Seconds),
     interval = Span(500, Millis)
   )
 
