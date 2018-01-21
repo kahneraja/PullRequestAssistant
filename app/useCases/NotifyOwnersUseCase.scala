@@ -17,32 +17,28 @@ class NotifyOwnersUseCase(
   memberRepository: MemberRepository
 ) {
 
-  def execute(): Future[List[Repo]] = {
-    gitHubGatway.getRepos()
-      .andThen {
-        case Success(repos: List[Repo]) =>
-          processAllPullRequests(repos)
-      }
-  }
-
-  def processAllPullRequests(repos: List[Repo]): Unit = {
-    val futures = for (repo <- repos)
-      yield gitHubGatway.getPullRequests(s"${repo.url}/pulls")
-
-    Future.sequence(futures)
-      .andThen {
-        case Success(lists: List[List[PullRequest]]) =>
-          notifyOwners(lists.flatten)
-      }
-  }
-
-  def notifyOwners(pullRequests: List[PullRequest]): Unit = {
-    pullRequestFilter.filter(pullRequests).foreach { pullRequest =>
-      notifyOwner(pullRequest)
+  def execute(): Future[Any] = {
+    gitHubGatway.getRepos().map { repos =>
+      processAllPullRequests(repos)
     }
   }
 
-  private def notifyOwner(pullRequest: PullRequest): Unit = {
+  def processAllPullRequests(repos: List[Repo]): Future[Any] = {
+    val futures = for (repo <- repos)
+      yield gitHubGatway.getPullRequests(s"${repo.url}/pulls")
+
+    Future.sequence(futures).map { lists =>
+      notifyOwners(lists.flatten)
+    }
+  }
+
+  def notifyOwners(pullRequests: List[PullRequest]): Future[Any] = {
+    pullRequestFilter.filter(pullRequests).map { pullRequest =>
+      notifyOwner(pullRequest)
+    }.last
+  }
+
+  private def notifyOwner(pullRequest: PullRequest): Future[Any] = {
     memberRepository.findMember(pullRequest.user.login).map { owner => {
       owner match {
         case Some(o) =>
@@ -53,7 +49,8 @@ class NotifyOwnersUseCase(
           slackGateway.postMessage(o.slack_name, message)
         case _ => Logger.log(s"unable to resolve ${pullRequest.user.login}")
       }
-    }}
+    }
+    }
   }
 
 }

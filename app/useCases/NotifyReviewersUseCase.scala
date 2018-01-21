@@ -17,31 +17,27 @@ class NotifyReviewersUseCase(
   memberRepository: MemberRepository
 ) {
 
-  def execute(): Future[List[Repo]] = {
-    gitHubGatway.getRepos()
-      .andThen {
-        case Success(repos: List[Repo]) =>
-          processAllPullRequests(repos)
-      }
+  def execute(): Future[Any] = {
+    gitHubGatway.getRepos().map { repos =>
+      processAllPullRequests(repos)
+    }
   }
 
-  def processAllPullRequests(repos: List[Repo]): Unit = {
+  def processAllPullRequests(repos: List[Repo]): Future[Any] = {
     val futures = for (repo <- repos)
       yield gitHubGatway.getPullRequests(s"${repo.url}/pulls")
 
-    Future.sequence(futures)
-      .andThen {
-        case Success(lists: List[List[PullRequest]]) =>
-          notifyReviewers(lists.flatten)
-      }
+    Future.sequence(futures).map { lists =>
+      notifyReviewers(lists.flatten)
+    }
   }
 
-  def notifyReviewers(pullRequests: List[PullRequest]): Unit = {
-    pullRequestFilter.filter(pullRequests).foreach { pullRequest =>
-      pullRequest.requested_reviewers.foreach { reviewer =>
+  def notifyReviewers(pullRequests: List[PullRequest]): Future[Any] = {
+    pullRequestFilter.filter(pullRequests).map { pullRequest =>
+      pullRequest.requested_reviewers.map { reviewer =>
         notifyReviewer(pullRequest, reviewer)
-      }
-    }
+      }.last
+    }.last
   }
 
   private def notifyReviewer(pullRequest: PullRequest, githubReviewer: GitHubMember) = {

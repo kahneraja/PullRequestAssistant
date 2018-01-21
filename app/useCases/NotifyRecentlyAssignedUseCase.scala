@@ -17,34 +17,30 @@ class NotifyRecentlyAssignedUseCase(
   memberRepository: MemberRepository
 ) {
 
-  def execute(): Future[List[Repo]] = {
-    gitHubGatway.getRepos()
-      .andThen {
-        case Success(repos: List[Repo]) =>
-          processAllPullRequests(repos)
-      }
-  }
-
-  def processAllPullRequests(repos: List[Repo]): Unit = {
-    val futures = for (repo <- repos)
-      yield gitHubGatway.getPullRequests(s"${repo.url}/pulls")
-
-    Future.sequence(futures)
-      .andThen {
-        case Success(lists: List[List[PullRequest]]) =>
-          notifyReviewers(lists.flatten)
-      }
-  }
-
-  def notifyReviewers(pullRequests: List[PullRequest]): Unit = {
-    pullRequestFilter.filter(pullRequests).foreach { pullRequest =>
-      pullRequest.requested_reviewers.foreach { reviewer =>
-        notifyReviewer(pullRequest, reviewer)
-      }
+  def execute(): Future[Any] = {
+    gitHubGatway.getRepos().map { repos =>
+      processAllPullRequests(repos)
     }
   }
 
-  private def notifyReviewer(pullRequest: PullRequest, githubReviewer: GitHubMember): Unit = {
+  def processAllPullRequests(repos: List[Repo]): Future[Any] = {
+    val futures = for (repo <- repos)
+      yield gitHubGatway.getPullRequests(s"${repo.url}/pulls")
+
+    Future.sequence(futures).map { listOfLists =>
+      notifyReviewers(listOfLists.flatten)
+    }
+  }
+
+  def notifyReviewers(pullRequests: List[PullRequest]): Future[Any] = {
+    pullRequestFilter.filter(pullRequests).map { pullRequest =>
+      pullRequest.requested_reviewers.map { reviewer =>
+        notifyReviewer(pullRequest, reviewer)
+      }.last
+    }.last
+  }
+
+  private def notifyReviewer(pullRequest: PullRequest, githubReviewer: GitHubMember): Future[Any] = {
     memberRepository.findMember(githubReviewer.login).map { reviewer =>
       memberRepository.findMember(pullRequest.user.login).map { owner => {
         (reviewer, owner) match {

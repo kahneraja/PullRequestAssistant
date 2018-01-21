@@ -10,7 +10,7 @@ class NotifyOwnerUseCaseTest  extends FlatSpec with Matchers with ScalaFutures {
 
   implicit override val patienceConfig = PatienceConfig(
     timeout = Span(2, Seconds),
-    interval = Span(20, Millis)
+    interval = Span(500, Millis)
   )
 
   "NotifyOwnerUserCase" should "notifies owners of all idle pull requests." in {

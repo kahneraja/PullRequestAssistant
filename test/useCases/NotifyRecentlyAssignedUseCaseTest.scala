@@ -10,7 +10,7 @@ class NotifyRecentlyAssignedUseCaseTest  extends FlatSpec with Matchers with Sca
 
   implicit override val patienceConfig = PatienceConfig(
     timeout = Span(2, Seconds),
-    interval = Span(20, Millis)
+    interval = Span(500, Millis)
   )
 
   "NotifyRecentlyAssignedCaseTest" should "notifies all recently assigned reviewers" in {
