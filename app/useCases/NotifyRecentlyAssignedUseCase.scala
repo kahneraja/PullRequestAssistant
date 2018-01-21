@@ -7,7 +7,6 @@ import repositories.{MemberRepository, PullRequestFilter}
 
 import scala.concurrent.ExecutionContext.Implicits._
 import scala.concurrent.Future
-import scala.util.Success
 
 class NotifyRecentlyAssignedUseCase(
   slackGateway: SlackGateway,
