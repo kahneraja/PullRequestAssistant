@@ -7,8 +7,8 @@ import factories.NotificationMessageFactory
 import gateways.Extensions._
 import gateways._
 import play.api.Logger
-import repositories.{IdlePullRequestFilterImpl, MemberRepository}
-import useCases.{NotifyRecentlyAssignedUseCase, NotifyReviewersUseCase}
+import repositories.{MemberRepository, RecentlyCreatedPullRequestFilterImpl}
+import useCases.NotifyRecentlyAssignedUseCase
 
 import scala.concurrent.ExecutionContext
 
@@ -27,7 +27,7 @@ class NotifyRecentlyAssignedActor @Inject()()(
           slackGateway = new SlackGatewayImpl(httpClient, gatewayConfig),
           gitHubGatway = new GitHubGatewayImpl(httpClient, gatewayConfig, TimeProviderImpl),
           notificationMessageFactory = new NotificationMessageFactory(TimeProviderImpl),
-          pullRequestFilter = new IdlePullRequestFilterImpl(TimeProviderImpl),
+          pullRequestFilter = new RecentlyCreatedPullRequestFilterImpl(TimeProviderImpl),
           memberRepository = memberRepository
         ).execute()
       } else {
