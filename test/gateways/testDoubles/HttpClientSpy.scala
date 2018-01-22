@@ -11,14 +11,17 @@ class HttpClientSpy(
   var didGetUrl: Option[String]
 ) extends HttpClient {
 
-  override def post(url: String, body: JsObject, headers: (String, String)*) = {
-    wasPostedWith = Some(body)
+  override def post(url: String, body: JsObject, headers: (String, String)*): Future[JsValue] = {
+    Future {
+      wasPostedWith = Some(body)
+      Json.obj()
+    }
   }
 
   override def get(url: String, headers: (String, String)*): Future[JsValue] = {
-    didGetUrl = Some(url)
     Future {
-      Json.parse("""{"stub":"data"}""")
+      didGetUrl = Some(url)
+      Json.obj()
     }
   }
 }

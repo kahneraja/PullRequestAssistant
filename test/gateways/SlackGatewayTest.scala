@@ -9,15 +9,16 @@ class SlackGatewayTest extends BaseSpec {
     val httpClientSpy = new HttpClientSpy(None, None)
     val gateway = new SlackGatewayImpl(httpClientSpy, GatewayConfigStub)
 
-    gateway.postMessage("john", "hello john!")
-
     val expected = Json.parse(
       """{
         |"channel":"@john",
         |"text":"hello john!",
         |"as_user":"stubBotName"
         |}""".stripMargin)
-    httpClientSpy.wasPostedWith.get shouldBe expected
+
+    whenReady(gateway.postMessage("john", "hello john!")) { _ =>
+      httpClientSpy.wasPostedWith.get shouldBe expected
+    }
   }
 
 }

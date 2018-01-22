@@ -12,7 +12,7 @@ import scala.concurrent.Future
 
 class HttpClientImpl @Inject()(ws: WSClient) extends HttpClient {
 
-  def post(url: String, body: JsObject, headers: (String, String)*): Unit = {
+  def post(url: String, body: JsObject, headers: (String, String)*): Future[JsValue] = {
     ws
       .url(url)
       .withHttpHeaders(headers: _*)
