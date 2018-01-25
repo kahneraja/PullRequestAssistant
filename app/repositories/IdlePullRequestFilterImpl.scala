@@ -24,6 +24,6 @@ class IdlePullRequestFilterImpl(timeProvider: TimeProvider) extends PullRequestF
 
   private def isIdleEver(hoursSinceUpdated: Int) = {
     val threeDaySplit = 24 * 3
-    hoursSinceUpdated % threeDaySplit == 0
+    hoursSinceUpdated > 0 && hoursSinceUpdated % threeDaySplit == 0
   }
 }

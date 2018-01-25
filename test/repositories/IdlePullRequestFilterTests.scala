@@ -6,6 +6,13 @@ import gateways.testDoubles.TimeProviderStub
 
 class IdlePullRequestFilterTests extends BaseSpec {
 
+  "Update 30 minutes ago" should "not be idle" in {
+    val minutes = 30
+    val pullRequest = PullRequestFactory.build(updated_at = TimeProviderStub.now().minusMinutes(minutes))
+    val pullRequests = new IdlePullRequestFilterImpl(TimeProviderStub).filter(List(pullRequest))
+    pullRequests.size shouldBe 0
+  }
+
   "Update 24 hours 30 minutes ago" should "be idle" in {
     val hours = 24
     val minutes = 20
