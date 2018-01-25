@@ -30,7 +30,7 @@ class NotificationMessageFactoryTests extends BaseSpec {
       .buildOwnerMessage(
         pullRequest,
         owner = owner)
-    message shouldBe "... fyi this one has now been idle for 2hrs.\n*Fix defect ABC*\nhttp://github.com/pr/123"
+    message shouldBe "I let your reviewers know this one has been idle for 2hrs.\n*Fix defect ABC*\nhttp://github.com/pr/123"
   }
 
   "NotificationMessage" should "build recently assigned message." in {

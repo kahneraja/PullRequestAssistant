@@ -26,7 +26,7 @@ class NotificationMessageFactory(timeProvider: TimeProvider) {
     val title = pullRequest.title
     val url = pullRequest.html_url
 
-    s"... fyi this one has now been idle for ${hours}hrs.\n*$title*\n$url"
+    s"I let your reviewers know this one has been idle for ${hours}hrs.\n*$title*\n$url"
   }
 
 }
