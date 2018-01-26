@@ -3,8 +3,9 @@ package useCases
 import domain.GitHub.{PullRequest, Repo}
 import domain.User
 import factories.NotificationMessageFactory
-import gateways.{GitHubGateway, Logger, SlackGateway}
-import repositories.{MemberRepository, PullRequestFilter}
+import filters.IdlePullRequestFilter
+import gateways.{GitHubGateway, Logger, SlackGateway, TimeProvider}
+import repositories.UserRepository
 
 import scala.concurrent.ExecutionContext.Implicits._
 import scala.concurrent.Future
@@ -13,32 +14,24 @@ class NotifyOwnersUseCase(
   slackGateway: SlackGateway,
   gitHubGatway: GitHubGateway,
   notificationMessageFactory: NotificationMessageFactory,
-  pullRequestFilter: PullRequestFilter,
-  memberRepository: MemberRepository
+  userRepository: UserRepository,
+  timeProvider: TimeProvider
 ) {
 
   def execute(): Future[List[Future[List[Future[Option[User]]]]]] = {
     gitHubGatway.getRepos().map { repos =>
-      processAllPullRequests(repos)
-    }
-  }
-
-  def processAllPullRequests(repos: List[Repo]): List[Future[List[Future[Option[User]]]]] = {
-    repos.map { repo =>
-      gitHubGatway.getPullRequests(s"${repo.url}/pulls").map { pullRequest =>
-        notifyOwners(pullRequest)
+      repos.map { repo =>
+        gitHubGatway.getPullRequests(s"${repo.url}/pulls").map { pullRequests =>
+          IdlePullRequestFilter.filter(pullRequests, timeProvider).map { pullRequest =>
+            notify(pullRequest)
+          }
+        }
       }
     }
   }
 
-  def notifyOwners(pullRequests: List[PullRequest]): List[Future[Option[User]]] = {
-    pullRequestFilter.filter(pullRequests).map { pullRequest =>
-      notifyOwner(pullRequest)
-    }
-  }
-
-  private def notifyOwner(pullRequest: PullRequest): Future[Option[User]] = {
-    memberRepository.findMember(pullRequest.user.login).flatMap {
+  private def notify(pullRequest: PullRequest): Future[Option[User]] = {
+    userRepository.findUser(pullRequest.user.login).flatMap {
       case None =>
         Logger.log(s"unable to resolve ${pullRequest.user.login}")
         Future.successful(None)

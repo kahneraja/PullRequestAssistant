@@ -6,7 +6,7 @@ import domain.User
 import play.api.Configuration
 import play.api.libs.json.JsValue
 import play.api.mvc._
-import repositories.MemberRepository
+import repositories.UserRepository
 
 import scala.concurrent.Future
 
@@ -17,7 +17,7 @@ import scala.concurrent.Future
 @Singleton
 class HomeController @Inject()(
   cc: ControllerComponents,
-  memberRepository: MemberRepository
+  memberRepository: UserRepository
 ) extends AbstractController(cc) {
 
   def index: Action[AnyContent] = Action {

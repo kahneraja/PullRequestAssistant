@@ -1,9 +1,10 @@
 package useCases
 
-import domain.GitHub.{Member, PullRequest, Repo}
+import domain.GitHub.{Member, PullRequest}
 import factories.NotificationMessageFactory
-import gateways.{GitHubGateway, Logger, SlackGateway}
-import repositories.{MemberRepository, PullRequestFilter}
+import filters.IdlePullRequestFilter
+import gateways._
+import repositories.UserRepository
 
 import scala.concurrent.ExecutionContext.Implicits._
 import scala.concurrent.Future
@@ -12,39 +13,31 @@ class NotifyReviewersUseCase (
   slackGateway: SlackGateway,
   gitHubGatway: GitHubGateway,
   notificationMessageFactory: NotificationMessageFactory,
-  pullRequestFilter: PullRequestFilter,
-  memberRepository: MemberRepository
+  userRepository: UserRepository,
+  timeProvider: TimeProvider
 ) {
 
   def execute(): Future[List[Future[List[Future[Option[domain.User]]]]]] = {
     gitHubGatway.getRepos().map { repos =>
-      processAllPullRequests(repos)
-    }
-  }
-
-  def processAllPullRequests(repos: List[Repo]): List[Future[List[Future[Option[domain.User]]]]] = {
-    repos.map { repo =>
-      gitHubGatway.getPullRequests(s"${repo.url}/pulls").map { pullRequest =>
-        notifyReviewers(pullRequest)
+      repos.map { repo =>
+        gitHubGatway.getPullRequests(s"${repo.url}/pulls").map { pullRequests =>
+          IdlePullRequestFilter.filter(pullRequests, timeProvider).flatMap { pullRequest =>
+            pullRequest.requested_reviewers.map { reviewer =>
+              notify(pullRequest, reviewer)
+            }
+          }
+        }
       }
     }
   }
 
-  def notifyReviewers(pullRequests: List[PullRequest]): List[Future[Option[domain.User]]] = {
-    pullRequestFilter.filter(pullRequests).flatMap { pullRequest =>
-      pullRequest.requested_reviewers.map { reviewer =>
-        notifyReviewer(pullRequest, reviewer)
-      }
-    }
-  }
-
-  private def notifyReviewer(pullRequest: PullRequest, githubReviewer: Member): Future[Option[domain.User]] = {
-    memberRepository.findMember(githubReviewer.login).flatMap {
+  private def notify(pullRequest: PullRequest, githubReviewer: Member): Future[Option[domain.User]] = {
+    userRepository.findUser(githubReviewer.login).flatMap {
       case None =>
         Logger.log(s"unable to resolve ${githubReviewer.login}")
         Future.successful(None)
       case Some(reviewer) => {
-        memberRepository.findMember(pullRequest.user.login).flatMap {
+        userRepository.findUser(pullRequest.user.login).flatMap {
           case None =>
             Logger.log(s"unable to resolve ${pullRequest.user.login}")
             Future.successful(None)

@@ -1,10 +1,11 @@
 package useCases
 
-import domain.GitHub.{Member, PullRequest, Repo}
+import domain.GitHub.{Event, PullRequest}
 import domain.User
 import factories.NotificationMessageFactory
-import gateways.{GitHubGateway, Logger, SlackGateway}
-import repositories.{MemberRepository, PullRequestFilter}
+import filters.RecentReviewRequestEventFilter
+import gateways.{GitHubGateway, Logger, SlackGateway, TimeProvider}
+import repositories.UserRepository
 
 import scala.concurrent.ExecutionContext.Implicits._
 import scala.concurrent.Future
@@ -13,44 +14,38 @@ class NotifyRecentlyAssignedUseCase(
   slackGateway: SlackGateway,
   gitHubGatway: GitHubGateway,
   notificationMessageFactory: NotificationMessageFactory,
-  pullRequestFilter: PullRequestFilter,
-  memberRepository: MemberRepository
+  userRepository: UserRepository,
+  timeProvider: TimeProvider
 ) {
 
-  def execute(): Future[List[Future[List[Future[Option[User]]]]]] = {
+  def execute(): Future[List[Future[List[Future[List[Future[Option[User]]]]]]]] = {
     gitHubGatway.getRepos().map { repos =>
-      processAllPullRequests(repos)
-    }
-  }
-
-  def processAllPullRequests(repos: List[Repo]): List[Future[List[Future[Option[User]]]]] = {
-    repos.map { repo =>
-      gitHubGatway.getPullRequests(s"${repo.url}/pulls").map { pullRequest =>
-        notifyReviewers(pullRequest)
+      repos.map { repo =>
+        gitHubGatway.getPullRequests(s"${repo.url}/pulls").map { pullRequests =>
+          pullRequests.map { pullRequest =>
+            gitHubGatway.getEvents(pullRequest._links.issue.href).map { events =>
+              new RecentReviewRequestEventFilter(timeProvider).filter(events).map { event =>
+                notify(event, pullRequest)
+              }
+            }
+          }
+        }
       }
     }
   }
 
-  def notifyReviewers(pullRequests: List[PullRequest]): List[Future[Option[User]]] = {
-    pullRequestFilter.filter(pullRequests).flatMap { pullRequest =>
-      pullRequest.requested_reviewers.map { reviewer =>
-        notifyReviewer(pullRequest, reviewer)
-      }
-    }
-  }
-
-  private def notifyReviewer(pullRequest: PullRequest, githubReviewer: Member): Future[Option[User]] = {
-    memberRepository.findMember(githubReviewer.login).flatMap {
+  private def notify(event: Event, pullRequest: PullRequest): Future[Option[User]] = {
+    userRepository.findUser(event.requested_reviewer.get.login).flatMap {
       case None =>
-        Logger.log(s"unable to resolve ${githubReviewer.login}")
+        Logger.log(s"unable to resolve ${event.review_requester.get.login}")
         Future.successful(None)
       case Some(reviewer) => {
-        memberRepository.findMember(pullRequest.user.login).flatMap {
+        userRepository.findUser(reviewer.github_name).flatMap {
           case None =>
-            Logger.log(s"unable to resolve ${pullRequest.user.login}")
+            Logger.log(s"unable to resolve ${event.review_requester.get.login}")
             Future.successful(None)
           case Some(owner) =>
-            val message = notificationMessageFactory.buildRecentlyAssignedMessage(pullRequest = pullRequest, owner = owner)
+            val message = notificationMessageFactory.buildRecentlyAssignedMessage(event, pullRequest, owner)
             slackGateway.postMessage(reviewer.slack_name, message)
             Future.successful(Some(reviewer))
         }

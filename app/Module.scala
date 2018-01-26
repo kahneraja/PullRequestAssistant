@@ -18,7 +18,7 @@ class Module extends AbstractModule {
 
   override def configure(): Unit = {
     bind(classOf[Clock]).toInstance(Clock.systemDefaultZone)
-    bind(classOf[MemberRepository]).to(classOf[MemberRepositoryImpl])
+    bind(classOf[UserRepository]).to(classOf[UserRepositoryImpl])
     bind(classOf[HttpClient]).to(classOf[HttpClientImpl])
     bind(classOf[GatewayConfig]).to(classOf[GatewayConfigImpl])
   }

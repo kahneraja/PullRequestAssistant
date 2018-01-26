@@ -4,7 +4,6 @@ import gateways.testDoubles.{GatewayConfigStub, HttpClientStub, TimeProviderStub
 
 class GitHubGatewayTest extends BaseSpec {
 
-
   "GitHubGateway" should "transform pull request json" in {
     val sampleJson = Some(
       """
@@ -25,7 +24,12 @@ class GitHubGatewayTest extends BaseSpec {
         |        "login": "stub-login",
         |        "url": "http://stub"
         |      }
-        |    ]
+        |    ],
+        |    "_links": {
+        |      "issue": {
+        |        "href": "https://"
+        |      }
+        |    }
         |  }
         |]
       """.stripMargin)
@@ -73,11 +77,9 @@ class GitHubGatewayTest extends BaseSpec {
 
     val gateway = new GitHubGatewayImpl(httpClient, GatewayConfigStub, TimeProviderStub)
 
-    whenReady(gateway.getIssueEvent(issuesUrl)) { events =>
+    whenReady(gateway.getEvents(issuesUrl)) { events =>
       events.size shouldBe 1
     }
   }
-
-
 
 }

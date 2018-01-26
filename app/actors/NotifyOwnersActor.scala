@@ -1,4 +1,4 @@
-package scheduler
+package actors
 
 import javax.inject.{Inject, Singleton}
 
@@ -7,7 +7,7 @@ import factories.NotificationMessageFactory
 import gateways.Extensions._
 import gateways._
 import play.api.Logger
-import repositories.{IdlePullRequestFilterImpl, MemberRepository}
+import repositories.UserRepository
 import useCases.NotifyOwnersUseCase
 
 import scala.concurrent.ExecutionContext
@@ -15,7 +15,7 @@ import scala.concurrent.ExecutionContext
 @Singleton
 class NotifyOwnersActor @Inject()()(
   ec: ExecutionContext,
-  memberRepository: MemberRepository,
+  memberRepository: UserRepository,
   httpClient: HttpClient,
   gatewayConfig: GatewayConfig
 ) extends Actor {
@@ -27,8 +27,8 @@ class NotifyOwnersActor @Inject()()(
           slackGateway = new SlackGatewayImpl(httpClient, gatewayConfig),
           gitHubGatway = new GitHubGatewayImpl(httpClient, gatewayConfig, TimeProviderImpl),
           notificationMessageFactory = new NotificationMessageFactory(TimeProviderImpl),
-          pullRequestFilter = new IdlePullRequestFilterImpl(TimeProviderImpl),
-          memberRepository = memberRepository
+          userRepository = memberRepository,
+          timeProvider = TimeProviderImpl
         ).execute()
       } else {
         Logger.info(s"Out of office hours... ${TimeProviderImpl.est().toString}")

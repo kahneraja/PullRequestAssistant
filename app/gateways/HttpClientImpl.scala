@@ -18,7 +18,7 @@ class HttpClientImpl @Inject()(ws: WSClient) extends HttpClient {
       .withHttpHeaders(headers: _*)
       .post(body)
       .map { wsresponse ⇒
-        Logger.log("post " + url + " -> " + wsresponse.status)
+        Logger.log(s"post $url -> ${wsresponse.status} $body")
         wsresponse.body[JsValue]
       }
   }
@@ -29,7 +29,7 @@ class HttpClientImpl @Inject()(ws: WSClient) extends HttpClient {
       .withHttpHeaders(headers: _*)
       .get()
       .map { wsresponse ⇒
-        Logger.log("get " + url + " -> " + wsresponse.status)
+        Logger.log(s"get $url -> ${wsresponse.status}")
         wsresponse.body[JsValue]
       }
   }

@@ -5,6 +5,6 @@ import reactivemongo.api.commands.MultiBulkWriteResult
 
 import scala.concurrent.Future
 
-trait MemberRepository {
-  def findMember(githubName: String): Future[Option[User]]
+trait UserRepository {
+  def findUser(githubName: String): Future[Option[User]]
 }

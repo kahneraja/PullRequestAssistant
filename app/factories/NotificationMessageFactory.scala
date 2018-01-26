@@ -1,16 +1,16 @@
 package factories
 
-import domain.GitHub.PullRequest
+import domain.GitHub.{Event, PullRequest}
 import domain.User
 import gateways.TimeProvider
 
 class NotificationMessageFactory(timeProvider: TimeProvider) {
-  def buildRecentlyAssignedMessage(pullRequest: PullRequest, owner: User): String = {
-    val hours = pullRequest.getHoursSinceUpdated(timeProvider)
+  def buildRecentlyAssignedMessage(event: Event, pullRequest: PullRequest, owner: User): String = {
+    val hours = event.getHoursSinceCreated(timeProvider)
     val title = pullRequest.title
     val url = pullRequest.html_url
 
-    s"@${owner.slack_name} tagged you on a new pr.\n*$title*\n$url"
+    s"@${owner.slack_name} tagged you on a pr.\n*$title*\n$url"
   }
 
   def buildReviewMessage(pullRequest: PullRequest, owner: User): String = {

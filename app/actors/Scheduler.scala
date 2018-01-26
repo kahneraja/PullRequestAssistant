@@ -1,4 +1,4 @@
-package scheduler
+package actors
 
 import java.time.LocalDateTime
 import javax.inject.{Inject, Named}

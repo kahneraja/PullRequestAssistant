@@ -1,4 +1,4 @@
-package scheduler
+package actors
 
 import javax.inject.{Inject, Singleton}
 
@@ -7,28 +7,28 @@ import factories.NotificationMessageFactory
 import gateways.Extensions._
 import gateways._
 import play.api.Logger
-import repositories.{IdlePullRequestFilterImpl, MemberRepository}
-import useCases.NotifyReviewersUseCase
+import repositories.UserRepository
+import useCases.NotifyRecentlyAssignedUseCase
 
 import scala.concurrent.ExecutionContext
 
 @Singleton
-class NotifyReviewersActor @Inject()()(
+class NotifyRecentlyAssignedActor @Inject()()(
   ec: ExecutionContext,
-  memberRepository: MemberRepository,
+  memberRepository: UserRepository,
   httpClient: HttpClient,
   gatewayConfig: GatewayConfig
 ) extends Actor {
   override def receive: Receive = {
     case _ =>
       if (TimeProviderImpl.est().isDuringOfficeHours) {
-        Logger.info("Execute: NotifyReviewersUseCase")
-        new NotifyReviewersUseCase(
+        Logger.info("Execute: NotifyRecentlyAssignedUseCase")
+        new NotifyRecentlyAssignedUseCase(
           slackGateway = new SlackGatewayImpl(httpClient, gatewayConfig),
           gitHubGatway = new GitHubGatewayImpl(httpClient, gatewayConfig, TimeProviderImpl),
           notificationMessageFactory = new NotificationMessageFactory(TimeProviderImpl),
-          pullRequestFilter = new IdlePullRequestFilterImpl(TimeProviderImpl),
-          memberRepository = memberRepository
+          userRepository = memberRepository,
+          timeProvider = TimeProviderImpl
         ).execute()
       } else {
         Logger.info(s"Out of office hours... ${TimeProviderImpl.est().toString}")

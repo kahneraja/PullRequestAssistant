@@ -12,7 +12,8 @@ case class PullRequest(
   created_at: LocalDateTime,
   updated_at: LocalDateTime,
   user: Member,
-  requested_reviewers: List[Member]
+  requested_reviewers: List[Member],
+  _links: Links
 ) {
 
   def getHoursSinceUpdated(timeProvider: TimeProvider): Int = {
@@ -23,4 +24,16 @@ case class PullRequest(
 
 object PullRequest {
   implicit val format: OFormat[PullRequest] = Json.format[PullRequest]
+}
+
+case class Links(issue: Issue)
+
+object Links {
+  implicit val format: OFormat[Links] = Json.format[Links]
+}
+
+case class Issue(href: String)
+
+object Issue {
+  implicit val format: OFormat[Issue] = Json.format[Issue]
 }

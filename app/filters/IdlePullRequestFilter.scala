@@ -1,13 +1,16 @@
-package repositories
+package filters
 
 import java.time.temporal.ChronoUnit
 
 import domain.GitHub.PullRequest
 import gateways.TimeProvider
 
-class IdlePullRequestFilterImpl(timeProvider: TimeProvider) extends PullRequestFilter {
+object IdlePullRequestFilter {
 
-  override def filter(pullRequests: List[PullRequest]): List[PullRequest] = {
+  def filter(
+    pullRequests: List[PullRequest],
+    timeProvider: TimeProvider
+  ): List[PullRequest] = {
     pullRequests.filter { pullRequest =>
       val hoursSinceUpdated = pullRequest.updated_at.until(timeProvider.now(), ChronoUnit.HOURS).toInt
       isIdleToday(hoursSinceUpdated) || isIdleEver(hoursSinceUpdated)

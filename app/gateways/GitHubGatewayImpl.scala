@@ -10,7 +10,7 @@ class GitHubGatewayImpl(
   config: GatewayConfig,
   timeProvider: TimeProvider
 ) extends GitHubGateway {
-  def getIssueEvent(url: String): Future[List[Event]] = {
+  def getEvents(url: String): Future[List[Event]] = {
     val headers: (String, String) = {
       "Authorization" -> s"token ${config.githubToken}"
     }

@@ -11,7 +11,7 @@ class NotificationMessageFactoryTests extends BaseSpec {
       title = "Fix defect ABC",
       updated_at = TimeProviderStub.now().minusHours(2)
     )
-    val owner = MemberFactory.build(slack_name = "john")
+    val owner = UserFactory.build(slack_name = "john")
     val message = new NotificationMessageFactory(TimeProviderStub)
       .buildReviewMessage(
         pullRequest,
@@ -25,7 +25,7 @@ class NotificationMessageFactoryTests extends BaseSpec {
       title = "Fix defect ABC",
       updated_at = TimeProviderStub.now().minusHours(2)
     )
-    val owner = MemberFactory.build(slack_name = "john")
+    val owner = UserFactory.build(slack_name = "john")
     val message = new NotificationMessageFactory(TimeProviderStub)
       .buildOwnerMessage(
         pullRequest,
@@ -34,17 +34,19 @@ class NotificationMessageFactoryTests extends BaseSpec {
   }
 
   "NotificationMessage" should "build recently assigned message." in {
+    val event = EventFactory.build()
     val pullRequest = PullRequestFactory.build(
       html_url = "http://github.com/pr/123",
       title = "Fix defect ABC",
       updated_at = TimeProviderStub.now().minusHours(2)
     )
-    val owner = MemberFactory.build(slack_name = "john")
+    val owner = UserFactory.build(slack_name = "john")
     val message = new NotificationMessageFactory(TimeProviderStub)
       .buildRecentlyAssignedMessage(
+        event,
         pullRequest,
         owner = owner)
-    message shouldBe "@john tagged you on a new pr.\n*Fix defect ABC*\nhttp://github.com/pr/123"
+    message shouldBe "@john tagged you on a pr.\n*Fix defect ABC*\nhttp://github.com/pr/123"
   }
 
 }
