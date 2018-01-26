@@ -24,7 +24,7 @@ class NotifyRecentlyAssignedUseCase(
         gitHubGatway.getPullRequests(s"${repo.url}/pulls").map { pullRequests =>
           pullRequests.map { pullRequest =>
             gitHubGatway.getEvents(pullRequest._links.issue.href).map { events =>
-              new RecentReviewRequestEventFilter(timeProvider).filter(events).map { event =>
+              RecentReviewRequestEventFilter.filter(events, timeProvider).map { event =>
                 notify(event, pullRequest)
               }
             }
