@@ -1,6 +1,6 @@
 package gateways
 
-import domain.GitHub.{Event, PullRequest, Repo}
+import domain.GitHub.{Event, Member, PullRequest, Repo}
 
 import scala.concurrent.ExecutionContext.Implicits._
 import scala.concurrent.Future
@@ -30,6 +30,18 @@ class GitHubGatewayImpl(
     httpClient.get(url, headers)
       .map { jsValue ⇒
         jsValue.as[List[PullRequest]]
+      }
+  }
+
+  def getTeamMembers(url: String): Future[List[Member]] = {
+
+    val headers: (String, String) = {
+      "Authorization" -> s"token ${config.githubToken}"
+    }
+
+    httpClient.get(url, headers)
+      .map { jsValue ⇒
+        jsValue.as[List[Member]]
       }
   }
 

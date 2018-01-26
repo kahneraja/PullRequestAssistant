@@ -25,7 +25,7 @@ class NotifyRecentlyAssignedActor @Inject()()(
         Logger.info("Execute: NotifyRecentlyAssignedUseCase")
         new NotifyRecentlyAssignedUseCase(
           slackGateway = new SlackGatewayImpl(httpClient, gatewayConfig),
-          gitHubGatway = new GitHubGatewayImpl(httpClient, gatewayConfig, TimeProviderImpl),
+          gitHubGateway = new GitHubGatewayImpl(httpClient, gatewayConfig, TimeProviderImpl),
           notificationMessageFactory = new NotificationMessageFactory(TimeProviderImpl),
           userRepository = memberRepository,
           timeProvider = TimeProviderImpl

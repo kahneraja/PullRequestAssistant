@@ -25,7 +25,7 @@ class NotifyReviewersActor @Inject()()(
         Logger.info("Execute: NotifyReviewersUseCase")
         new NotifyReviewersUseCase(
           slackGateway = new SlackGatewayImpl(httpClient, gatewayConfig),
-          gitHubGatway = new GitHubGatewayImpl(httpClient, gatewayConfig, TimeProviderImpl),
+          gitHubGateway = new GitHubGatewayImpl(httpClient, gatewayConfig, TimeProviderImpl),
           notificationMessageFactory = new NotificationMessageFactory(TimeProviderImpl),
           userRepository = userRepository,
           timeProvider = TimeProviderImpl

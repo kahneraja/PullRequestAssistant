@@ -1,6 +1,7 @@
 package useCases
 
 import domain.GitHub.{Member, PullRequest}
+import domain.User
 import factories.NotificationMessageFactory
 import filters.IdlePullRequestFilter
 import gateways._
@@ -11,19 +12,26 @@ import scala.concurrent.Future
 
 class NotifyReviewersUseCase (
   slackGateway: SlackGateway,
-  gitHubGatway: GitHubGateway,
+  gitHubGateway: GitHubGateway,
   notificationMessageFactory: NotificationMessageFactory,
   userRepository: UserRepository,
   timeProvider: TimeProvider
 ) {
 
-  def execute(): Future[List[Future[List[Future[Option[domain.User]]]]]] = {
-    gitHubGatway.getRepos().map { repos =>
+  def execute(): Future[List[Future[List[Future[List[Future[Option[User]]]]]]]] = {
+    gitHubGateway.getRepos().map { repos =>
       repos.map { repo =>
-        gitHubGatway.getPullRequests(s"${repo.url}/pulls").map { pullRequests =>
+        gitHubGateway.getPullRequests(s"${repo.url}/pulls").map { pullRequests =>
           IdlePullRequestFilter.filter(pullRequests, timeProvider).flatMap { pullRequest =>
             pullRequest.requested_reviewers.map { reviewer =>
               notify(pullRequest, reviewer)
+            }
+            pullRequest.requested_teams.map { team =>
+              gitHubGateway.getTeamMembers(team.url).map { members =>
+                members.map { member =>
+                  notify(pullRequest, member)
+                }
+              }
             }
           }
         }

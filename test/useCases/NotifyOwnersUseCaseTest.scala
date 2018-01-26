@@ -1,28 +1,43 @@
 package useCases
 
-import factories.{NotificationMessageFactory, PullRequestFactory}
-import gateways.BaseSpec
-import gateways.testDoubles.{GitHubGatewayStub, SlackGatewaySpy, TimeProviderStub, UserRepositoryStub}
-import org.scalatest.concurrent.Eventually
-import org.scalatest.time.{Seconds, Span}
+import factories._
+import gateways.testDoubles.{TimeProviderStub, UserRepositoryStub}
+import gateways.{BaseSpec, GitHubGateway, SlackGateway}
+import org.mockito.Matchers.any
+import org.mockito.Mockito.{times, verify, when}
+import repositories.UserRepository
 
-class NotifyOwnersUseCaseTest extends BaseSpec with Eventually {
+import scala.concurrent.Future
+
+class NotifyOwnersUseCaseTest extends BaseSpec {
 
   "When successful" should "notify one user" in {
-    val slackGatewaySpy = new SlackGatewaySpy()
-    val gitHubGatewayStub = new GitHubGatewayStub()
+    val userRepository = mock[UserRepository]
+    val slackGateway = mock[SlackGateway]
+    val gitHubGateway = mock[GitHubGateway]
     val hours = 6
-    gitHubGatewayStub.stubbedPullRequests = List(PullRequestFactory.build(updated_at = TimeProviderStub.now().minusHours(hours)))
+    val pullRequests = List(PullRequestFactory.build(
+      updated_at = TimeProviderStub.now.minusHours(hours),
+      requested_reviewers = List(MemberFactory.build())
+    ))
+
+    when(gitHubGateway.getRepos())
+      .thenReturn(Future.successful(List(RepoFactory.build())))
+    when(gitHubGateway.getPullRequests(any[String]()))
+      .thenReturn(Future.successful(pullRequests))
+    when(userRepository.findUser(any[String]()))
+      .thenReturn(Future.successful(Some(UserFactory.build())))
 
     new NotifyOwnersUseCase(
-      slackGateway = slackGatewaySpy,
-      gitHubGatway = gitHubGatewayStub,
+      slackGateway = slackGateway,
+      gitHubGatway = gitHubGateway,
       notificationMessageFactory = new NotificationMessageFactory(TimeProviderStub),
       userRepository = UserRepositoryStub,
       timeProvider = TimeProviderStub
     ).execute()
-    eventually(timeout(Span(1, Seconds))) {
-      slackGatewaySpy.messages.size shouldBe 1
+
+    eventually {
+      verify(slackGateway, times(1)).postMessage(any[String], any[String])
     }
   }
 

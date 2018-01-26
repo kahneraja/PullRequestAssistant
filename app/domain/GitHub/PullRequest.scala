@@ -13,6 +13,7 @@ case class PullRequest(
   updated_at: LocalDateTime,
   user: Member,
   requested_reviewers: List[Member],
+  requested_teams: List[Team],
   _links: Links
 ) {
 
