@@ -2,7 +2,7 @@ package factories
 
 import java.time.{Clock, LocalDateTime}
 
-import domain.{GitHubMember, Member, PullRequest, Repo}
+import domain.GitHub.{Member, PullRequest, Repo}
 
 object PullRequestFactory {
 
@@ -13,7 +13,6 @@ object PullRequestFactory {
     updated_at: LocalDateTime = LocalDateTime.now(Clock.systemUTC())
   ): PullRequest = {
     new PullRequest(
-      id = 1,
       title = title,
       html_url = html_url,
       created_at = created_at,
@@ -27,16 +26,16 @@ object PullRequestFactory {
 
 object MemberFactory {
 
-  def build(github_name: String = "stub-github-name", slack_name: String = "stub-slack-name"): Member = {
-    new Member(github_name = github_name, slack_name = slack_name)
+  def build(github_name: String = "stub-github-name", slack_name: String = "stub-slack-name"): domain.User = {
+    new domain.User(github_name = github_name, slack_name = slack_name)
   }
 
 }
 
 object GitHubMemberFactory {
 
-  def build(login: String = "stub-login"): GitHubMember = {
-    new GitHubMember(1, login = login, "")
+  def build(login: String = "stub-login"): Member = {
+    new Member(login = login, "")
   }
 
 }

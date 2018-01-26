@@ -1,6 +1,6 @@
 package repositories
 
-import domain.PullRequest
+import domain.GitHub.PullRequest
 
 trait PullRequestFilter {
 

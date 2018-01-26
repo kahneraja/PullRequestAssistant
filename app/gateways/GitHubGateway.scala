@@ -1,6 +1,6 @@
 package gateways
 
-import domain.{PullRequest, Repo}
+import domain.GitHub.{PullRequest, Repo}
 
 import scala.concurrent.Future
 

@@ -2,7 +2,7 @@ package controllers
 
 import javax.inject._
 
-import domain.Member
+import domain.User
 import play.api.Configuration
 import play.api.libs.json.JsValue
 import play.api.mvc._

@@ -1,6 +1,6 @@
 package gateways.testDoubles
 
-import domain.{PullRequest, Repo}
+import domain.GitHub.{PullRequest, Repo}
 import factories.{PullRequestFactory, RepoFactory}
 import gateways.GitHubGateway
 

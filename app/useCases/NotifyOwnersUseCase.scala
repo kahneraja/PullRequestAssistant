@@ -1,6 +1,7 @@
 package useCases
 
-import domain.{Member, PullRequest, Repo}
+import domain.GitHub.{PullRequest, Repo}
+import domain.User
 import factories.NotificationMessageFactory
 import gateways.{GitHubGateway, Logger, SlackGateway}
 import repositories.{MemberRepository, PullRequestFilter}
@@ -16,13 +17,13 @@ class NotifyOwnersUseCase(
   memberRepository: MemberRepository
 ) {
 
-  def execute(): Future[List[Future[List[Future[Option[Member]]]]]] = {
+  def execute(): Future[List[Future[List[Future[Option[User]]]]]] = {
     gitHubGatway.getRepos().map { repos =>
       processAllPullRequests(repos)
     }
   }
 
-  def processAllPullRequests(repos: List[Repo]): List[Future[List[Future[Option[Member]]]]] = {
+  def processAllPullRequests(repos: List[Repo]): List[Future[List[Future[Option[User]]]]] = {
     repos.map { repo =>
       gitHubGatway.getPullRequests(s"${repo.url}/pulls").map { pullRequest =>
         notifyOwners(pullRequest)
@@ -30,13 +31,13 @@ class NotifyOwnersUseCase(
     }
   }
 
-  def notifyOwners(pullRequests: List[PullRequest]): List[Future[Option[Member]]] = {
+  def notifyOwners(pullRequests: List[PullRequest]): List[Future[Option[User]]] = {
     pullRequestFilter.filter(pullRequests).map { pullRequest =>
       notifyOwner(pullRequest)
     }
   }
 
-  private def notifyOwner(pullRequest: PullRequest): Future[Option[Member]] = {
+  private def notifyOwner(pullRequest: PullRequest): Future[Option[User]] = {
     memberRepository.findMember(pullRequest.user.login).flatMap {
       case None =>
         Logger.log(s"unable to resolve ${pullRequest.user.login}")

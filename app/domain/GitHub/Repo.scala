@@ -1,4 +1,4 @@
-package domain
+package domain.GitHub
 
 import play.api.libs.json.{Json, OFormat}
 

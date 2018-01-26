@@ -1,6 +1,6 @@
 package useCases
 
-import domain.{GitHubMember, Member, PullRequest, Repo}
+import domain.GitHub.{Member, PullRequest, Repo}
 import factories.NotificationMessageFactory
 import gateways.{GitHubGateway, Logger, SlackGateway}
 import repositories.{MemberRepository, PullRequestFilter}
@@ -16,13 +16,13 @@ class NotifyReviewersUseCase (
   memberRepository: MemberRepository
 ) {
 
-  def execute(): Future[List[Future[List[Future[Option[Member]]]]]] = {
+  def execute(): Future[List[Future[List[Future[Option[domain.User]]]]]] = {
     gitHubGatway.getRepos().map { repos =>
       processAllPullRequests(repos)
     }
   }
 
-  def processAllPullRequests(repos: List[Repo]): List[Future[List[Future[Option[Member]]]]] = {
+  def processAllPullRequests(repos: List[Repo]): List[Future[List[Future[Option[domain.User]]]]] = {
     repos.map { repo =>
       gitHubGatway.getPullRequests(s"${repo.url}/pulls").map { pullRequest =>
         notifyReviewers(pullRequest)
@@ -30,7 +30,7 @@ class NotifyReviewersUseCase (
     }
   }
 
-  def notifyReviewers(pullRequests: List[PullRequest]): List[Future[Option[Member]]] = {
+  def notifyReviewers(pullRequests: List[PullRequest]): List[Future[Option[domain.User]]] = {
     pullRequestFilter.filter(pullRequests).flatMap { pullRequest =>
       pullRequest.requested_reviewers.map { reviewer =>
         notifyReviewer(pullRequest, reviewer)
@@ -38,7 +38,7 @@ class NotifyReviewersUseCase (
     }
   }
 
-  private def notifyReviewer(pullRequest: PullRequest, githubReviewer: GitHubMember): Future[Option[Member]] = {
+  private def notifyReviewer(pullRequest: PullRequest, githubReviewer: Member): Future[Option[domain.User]] = {
     memberRepository.findMember(githubReviewer.login).flatMap {
       case None =>
         Logger.log(s"unable to resolve ${githubReviewer.login}")

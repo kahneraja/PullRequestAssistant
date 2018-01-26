@@ -2,8 +2,7 @@ package repositories
 
 import java.time.temporal.ChronoUnit
 
-import domain.PullRequest
-
+import domain.GitHub.PullRequest
 import gateways.TimeProvider
 
 class RecentlyCreatedPullRequestFilterImpl(timeProvider: TimeProvider) extends PullRequestFilter {

@@ -1,20 +1,18 @@
-package domain
+package domain.GitHub
 
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 
+import gateways.TimeProvider
 import play.api.libs.json.{Json, OFormat}
 
-import gateways.TimeProvider
-
 case class PullRequest(
-  id: Int,
   title: String,
   html_url: String,
   created_at: LocalDateTime,
   updated_at: LocalDateTime,
-  user: GitHubMember,
-  requested_reviewers: List[GitHubMember]
+  user: Member,
+  requested_reviewers: List[Member]
 ) {
 
   def getHoursSinceUpdated(timeProvider: TimeProvider): Int = {

@@ -1,6 +1,6 @@
 package gateways.testDoubles
 
-import domain.PullRequest
+import domain.GitHub.PullRequest
 import repositories.PullRequestFilter
 
 object PullRequestFilterStub extends PullRequestFilter {

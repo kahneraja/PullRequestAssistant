@@ -2,7 +2,7 @@ package repositories
 
 import javax.inject.Inject
 
-import domain.Member
+import domain.User
 import play.modules.reactivemongo.json._
 import reactivemongo.api.commands.MultiBulkWriteResult
 import play.modules.reactivemongo.ReactiveMongoApi
@@ -16,8 +16,8 @@ class MemberRepositoryImpl @Inject()(implicit ec: ExecutionContext, reactiveMong
 
   def collection: Future[JSONCollection] = reactiveMongoApi.database.map(_.collection[JSONCollection]("members"))
 
-  override def findMember(githubName: String): Future[Option[Member]] = {
+  override def findMember(githubName: String): Future[Option[User]] = {
     val selector = BSONDocument("github_name" -> githubName)
-    collection.flatMap(_.find(selector).one[Member])
+    collection.flatMap(_.find(selector).one[User])
   }
 }
