@@ -11,8 +11,9 @@ class SlackGatewaySpy extends SlackGateway {
   var messages: List[(String, String)] = List()
 
   def postMessage(channel: String, text: String): Future[JsObject] = {
+    println("postMessage " + messages.size)
+    messages = messages:+((channel, text))
     Future {
-      messages = messages:+((channel, text))
       Json.obj()
     }
   }

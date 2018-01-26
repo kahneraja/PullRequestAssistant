@@ -1,7 +1,7 @@
 package gateways.testDoubles
 
-import domain.GitHub.{Event, PullRequest, Repo}
-import factories.{EventFactory, PullRequestFactory, RepoFactory}
+import domain.GitHub.{Event, Member, PullRequest, Repo}
+import factories.{EventFactory, MemberFactory, PullRequestFactory, RepoFactory}
 import gateways.GitHubGateway
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -9,6 +9,10 @@ import scala.concurrent.Future
 
 class GitHubGatewayStub extends GitHubGateway {
 
+  var stubbedTeamMembers = List(
+    MemberFactory.build(),
+    MemberFactory.build()
+  )
   var stubbedEvents: List[Event] = List(EventFactory.build())
   var stubbedPullRequests: List[PullRequest] = List(PullRequestFactory.build())
 
@@ -27,6 +31,12 @@ class GitHubGatewayStub extends GitHubGateway {
   override def getEvents(str: String): Future[List[Event]] = {
     Future {
       stubbedEvents
+    }
+  }
+
+  override def getTeamMembers(str: String): Future[List[Member]] = {
+    Future {
+      stubbedTeamMembers
     }
   }
 }

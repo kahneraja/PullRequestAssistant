@@ -9,9 +9,9 @@ object EventFactory {
   def build(
     event: String = "",
     actor: Member = MemberFactory.build(),
-    review_requester: Option[Member] = Some(MemberFactory.build()),
-    requested_reviewer: Option[Member] = Some(MemberFactory.build()),
-    requested_team: Option[Team] = Some(TeamFactory.build()),
+    review_requester: Option[Member] = None,
+    requested_reviewer: Option[Member] = None,
+    requested_team: Option[Team] = None,
     created_at: LocalDateTime = TimeProviderStub.now()
   ): Event = {
     new Event(

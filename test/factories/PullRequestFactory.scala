@@ -2,7 +2,7 @@ package factories
 
 import java.time.{Clock, LocalDateTime}
 
-import domain.GitHub.{Issue, Links, PullRequest, Repo}
+import domain.GitHub._
 import gateways.testDoubles.TimeProviderStub
 
 object PullRequestFactory {
@@ -12,7 +12,9 @@ object PullRequestFactory {
     title: String = "Title",
     created_at: LocalDateTime = TimeProviderStub.now(),
     updated_at: LocalDateTime = TimeProviderStub.now(),
-    _links: Links = new Links(new Issue(""))
+    _links: Links = new Links(new Issue("")),
+    requested_reviewers: List[Member] = List.empty,
+    requested_teams: List[Team] = List.empty
   ): PullRequest = {
     new PullRequest(
       title = title,
@@ -20,8 +22,9 @@ object PullRequestFactory {
       created_at = created_at,
       updated_at = updated_at,
       user = MemberFactory.build(),
-      requested_reviewers = List(MemberFactory.build()),
-      _links = _links
+      _links = _links,
+      requested_reviewers = requested_reviewers,
+      requested_teams = requested_teams
     )
   }
 

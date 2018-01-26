@@ -25,6 +25,12 @@ class GitHubGatewayTest extends BaseSpec {
         |        "url": "http://stub"
         |      }
         |    ],
+        |    "requested_teams": [
+        |       {
+        |         "name": "team1",
+        |         "url": "https://"
+        |       }
+        |    ],
         |    "_links": {
         |      "issue": {
         |        "href": "https://"
@@ -33,13 +39,12 @@ class GitHubGatewayTest extends BaseSpec {
         |  }
         |]
       """.stripMargin)
-    val repoUrl = "http://stub"
     val httpClient = new HttpClientStub()
     httpClient.stubbedJson = sampleJson
 
     val gateway = new GitHubGatewayImpl(httpClient, GatewayConfigStub, TimeProviderStub)
 
-    whenReady(gateway.getPullRequests(repoUrl)) { pullRequests =>
+    whenReady(gateway.getPullRequests("")) { pullRequests =>
       pullRequests.size shouldBe 1
     }
   }
@@ -71,14 +76,33 @@ class GitHubGatewayTest extends BaseSpec {
         |    }
         |]
       """.stripMargin)
-    val issuesUrl = "http://stub"
     val httpClient = new HttpClientStub()
     httpClient.stubbedJson = sampleJson
 
     val gateway = new GitHubGatewayImpl(httpClient, GatewayConfigStub, TimeProviderStub)
 
-    whenReady(gateway.getEvents(issuesUrl)) { events =>
+    whenReady(gateway.getEvents("")) { events =>
       events.size shouldBe 1
+    }
+  }
+
+  "GitHubGateway" should "transform a team" in {
+    val sampleJson = Some(
+      """
+        |[
+        |  {
+        |    "login": "stub-login",
+        |    "url": "http://stub"
+        |  }
+        |]
+      """.stripMargin)
+    val httpClient = new HttpClientStub()
+    httpClient.stubbedJson = sampleJson
+
+    val gateway = new GitHubGatewayImpl(httpClient, GatewayConfigStub, TimeProviderStub)
+
+    whenReady(gateway.getTeamMembers("")) { members =>
+      members.size shouldBe 1
     }
   }
 

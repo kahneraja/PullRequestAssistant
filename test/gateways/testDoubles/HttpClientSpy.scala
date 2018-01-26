@@ -12,15 +12,15 @@ class HttpClientSpy(
 ) extends HttpClient {
 
   override def post(url: String, body: JsObject, headers: (String, String)*): Future[JsValue] = {
+    wasPostedWith = Some(body)
     Future {
-      wasPostedWith = Some(body)
       Json.obj()
     }
   }
 
   override def get(url: String, headers: (String, String)*): Future[JsValue] = {
+    didGetUrl = Some(url)
     Future {
-      didGetUrl = Some(url)
       Json.obj()
     }
   }
