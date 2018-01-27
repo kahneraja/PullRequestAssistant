@@ -10,6 +10,7 @@ class GitHubGatewayImpl(
   config: GatewayConfig,
   timeProvider: TimeProvider
 ) extends GitHubGateway {
+
   def getEvents(url: String): Future[List[Event]] = {
     val headers: (String, String) = {
       "Authorization" -> s"token ${config.githubToken}"
@@ -21,13 +22,12 @@ class GitHubGatewayImpl(
       }
   }
 
-  def getPullRequests(url: String): Future[List[PullRequest]] = {
-
+  def getPullRequests(url: String, state: String, perPage: Int): Future[List[PullRequest]] = {
     val headers: (String, String) = {
       "Authorization" -> s"token ${config.githubToken}"
     }
 
-    httpClient.get(url, headers)
+    httpClient.get(s"$url?state=$state&perPage=$perPage", headers)
       .map { jsValue ⇒
         jsValue.as[List[PullRequest]]
       }

@@ -24,7 +24,7 @@ class NotifyReviewersUseCaseTest extends BaseSpec {
 
     when(gitHubGateway.getRepos())
       .thenReturn(Future.successful(List(RepoFactory.build())))
-    when(gitHubGateway.getPullRequests(any[String]()))
+    when(gitHubGateway.getPullRequests(any[String](), any[String](), any[Int]()))
       .thenReturn(Future.successful(pullRequests))
     when(userRepository.findUser(any[String]()))
       .thenReturn(Future.successful(Some(UserFactory.build())))
@@ -57,7 +57,7 @@ class NotifyReviewersUseCaseTest extends BaseSpec {
 
     when(gitHubGateway.getRepos())
       .thenReturn(Future.successful(List(RepoFactory.build())))
-    when(gitHubGateway.getPullRequests(any[String]()))
+    when(gitHubGateway.getPullRequests(any[String](), any[String](), any[Int]()))
       .thenReturn(Future.successful(pullRequests))
     when(gitHubGateway.getTeamMembers(any[String]()))
       .thenReturn(Future.successful(teamMembers))

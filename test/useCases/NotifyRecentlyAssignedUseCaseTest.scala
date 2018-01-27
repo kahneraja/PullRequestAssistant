@@ -33,7 +33,7 @@ class NotifyRecentlyAssignedUseCaseTest extends BaseSpec {
 
     when(gitHubGateway.getRepos())
       .thenReturn(Future.successful(List(RepoFactory.build())))
-    when(gitHubGateway.getPullRequests(any[String]()))
+    when(gitHubGateway.getPullRequests(any[String](), any[String](), any[Int]()))
       .thenReturn(Future.successful(pullRequests))
     when(userRepository.findUser(any[String]()))
       .thenReturn(Future.successful(Some(UserFactory.build())))
@@ -74,7 +74,7 @@ class NotifyRecentlyAssignedUseCaseTest extends BaseSpec {
 
     when(gitHubGateway.getRepos())
       .thenReturn(Future.successful(List(RepoFactory.build())))
-    when(gitHubGateway.getPullRequests(any[String]()))
+    when(gitHubGateway.getPullRequests(any[String](), any[String](), any[Int]()))
       .thenReturn(Future.successful(pullRequests))
     when(userRepository.findUser(any[String]()))
       .thenReturn(Future.successful(Some(UserFactory.build())))
