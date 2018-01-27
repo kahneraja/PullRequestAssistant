@@ -50,14 +50,16 @@
                                 data: averageTimeData,
                                 fill: false,
                                 backgroundColor: "#fc416a",
-                                borderColor: "#fc416a"
+                                borderColor: "#fc416a",
+                                yAxisID: 'A',
                             },
                             {
                                 label: 'Total approved',
                                 data: totalClosedData,
                                 backgroundColor: "#1d9dfc",
                                 borderColor: "#1d9dfc",
-                                fill: false
+                                fill: false,
+                                yAxisID: 'B',
                             }
                         ]
                     };
@@ -88,20 +90,34 @@
                                 }
                             },
                             scales: {
-                                xAxes: [{
-                                    display: false,
-                                    scaleLabel: {
+                                xAxes: [
+                                    {
                                         display: false,
-                                        labelString: 'Weeks'
-                                    }
-                                }],
-                                yAxes: [{
-                                    display: false,
-                                    scaleLabel: {
+                                        scaleLabel: {
+                                            display: false,
+                                            labelString: 'Weeks'
+                                        }
+                                    }],
+                                yAxes: [
+                                    {
+                                        id: 'A',
+                                        type: 'linear',
                                         display: false,
-                                        labelString: 'Value'
+                                        scaleLabel: {
+                                            display: false,
+                                            labelString: 'Value'
+                                        }
+                                    },
+                                    {
+                                        id: 'B',
+                                        type: 'linear',
+                                        display: false,
+                                        scaleLabel: {
+                                            display: false,
+                                            labelString: 'Value'
+                                        }
                                     }
-                                }]
+                                ]
                             }
                         }
                     });
