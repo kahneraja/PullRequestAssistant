@@ -46,14 +46,14 @@
                         labels: labels,
                         datasets: [
                             {
-                                label: 'Average pull request closing hours',
+                                label: 'Hours in review',
                                 data: averageTimeData,
                                 fill: false,
                                 backgroundColor: "#fc416a",
                                 borderColor: "#fc416a"
                             },
                             {
-                                label: 'Total pull requests closed',
+                                label: 'Total approved',
                                 data: totalClosedData,
                                 backgroundColor: "#1d9dfc",
                                 borderColor: "#1d9dfc",
@@ -106,13 +106,6 @@
                         }
                     });
                 });
-
-                var dynamicColors = function () {
-                    var r = Math.floor(Math.random() * 255);
-                    var g = Math.floor(Math.random() * 255);
-                    var b = Math.floor(Math.random() * 255);
-                    return "rgb(" + r + "," + g + "," + b + ")";
-                }
         </script>
     </body>
 </html>
