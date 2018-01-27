@@ -1,2 +1,118 @@
 @(message: String)
-<h1>@message</h1>
+<html>
+    <head>
+        <script
+        src="http://code.jquery.com/jquery-3.3.1.min.js"
+        integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+        crossorigin="anonymous"></script>
+        <script
+        src="http://underscorejs.org/underscore-min.js"></script>
+        <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.bundle.min.js"></script>
+    </head>
+    <body>
+        <div style="width: 95%;">
+            <canvas id="myChart"></canvas>
+        </div>
+        <script>
+                $.getJSON("metrics", function (pullRequests) {
+
+                    var labels = _(pullRequests).chain().flatten()
+                            .pluck('label')
+                            .unique()
+                            .sortBy(function (label) {
+                                return label;
+                            })
+                            .value();
+
+                    var totalClosedData = _.map(labels, function (label) {
+                        var filteredPullRequests = _.filter(pullRequests, function (pullRequest) {
+                            return pullRequest.label === label;
+                        });
+                        return filteredPullRequests.length;
+                    });
+
+                    var averageTimeData = _.map(labels, function (label) {
+                        var filteredPullRequests = _.filter(pullRequests, function (pullRequest) {
+                            return pullRequest.label === label;
+                        });
+                        var totalHours = _.reduce(filteredPullRequests, function (num, pullRequest) {
+                            return pullRequest.hours + num;
+                        }, 0);
+                        return (totalHours / filteredPullRequests.length).toFixed(2);
+                    });
+
+                    var data = {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: 'Average pull request closing hours',
+                                data: averageTimeData,
+                                fill: false,
+                                backgroundColor: "#fc416a",
+                                borderColor: "#fc416a"
+                            },
+                            {
+                                label: 'Total pull requests closed',
+                                data: totalClosedData,
+                                backgroundColor: "#1d9dfc",
+                                borderColor: "#1d9dfc",
+                                fill: false
+                            }
+                        ]
+                    };
+                    var ctx = document.getElementById("myChart");
+                    new Chart(ctx, {
+                        type: 'line',
+                        data: data,
+                        options: {
+                            responsive: true,
+                            title: {
+                                display: true,
+                                text: 'Pull Request Metric'
+                            },
+                            tooltips: {
+                                mode: 'index',
+                                intersect: false,
+                            },
+                            hover: {
+                                mode: 'nearest',
+                                intersect: true
+                            },
+                            layout: {
+                                padding: {
+                                    left: 50,
+                                    right: 50,
+                                    top: 50,
+                                    bottom: 50
+                                }
+                            },
+                            scales: {
+                                xAxes: [{
+                                    display: false,
+                                    scaleLabel: {
+                                        display: false,
+                                        labelString: 'Weeks'
+                                    }
+                                }],
+                                yAxes: [{
+                                    display: false,
+                                    scaleLabel: {
+                                        display: false,
+                                        labelString: 'Value'
+                                    }
+                                }]
+                            }
+                        }
+                    });
+                });
+
+                var dynamicColors = function () {
+                    var r = Math.floor(Math.random() * 255);
+                    var g = Math.floor(Math.random() * 255);
+                    var b = Math.floor(Math.random() * 255);
+                    return "rgb(" + r + "," + g + "," + b + ")";
+                }
+        </script>
+    </body>
+</html>

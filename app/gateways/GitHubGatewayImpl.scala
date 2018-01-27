@@ -1,11 +1,13 @@
 package gateways
 
+import javax.inject.Inject
+
 import domain.GitHub.{Event, Member, PullRequest, Repo}
 
 import scala.concurrent.ExecutionContext.Implicits._
 import scala.concurrent.Future
 
-class GitHubGatewayImpl(
+class GitHubGatewayImpl @Inject()(
   httpClient: HttpClient,
   config: GatewayConfig,
   timeProvider: TimeProvider
