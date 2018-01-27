@@ -1,8 +1,8 @@
 package useCases
 
 import factories._
+import gateways.testDoubles.TimeProviderStub
 import gateways.{BaseSpec, GitHubGateway, SlackGateway}
-import gateways.testDoubles.{GitHubGatewayStub, SlackGatewaySpy, TimeProviderStub, UserRepositoryStub}
 import org.mockito.Matchers._
 import org.mockito.Mockito._
 import repositories.UserRepository

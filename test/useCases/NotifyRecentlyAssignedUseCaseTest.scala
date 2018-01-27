@@ -1,7 +1,7 @@
 package useCases
 
 import factories._
-import gateways.testDoubles.{TimeProviderStub, UserRepositoryStub}
+import gateways.testDoubles.TimeProviderStub
 import gateways.{BaseSpec, GitHubGateway, SlackGateway}
 import org.mockito.Matchers.any
 import org.mockito.Mockito.{times, verify, when}
@@ -44,7 +44,7 @@ class NotifyRecentlyAssignedUseCaseTest extends BaseSpec {
       slackGateway = slackGateway,
       gitHubGateway = gitHubGateway,
       notificationMessageFactory = new NotificationMessageFactory(TimeProviderStub),
-      userRepository = UserRepositoryStub,
+      userRepository = userRepository,
       timeProvider = TimeProviderStub
     ).execute()
 
@@ -87,7 +87,7 @@ class NotifyRecentlyAssignedUseCaseTest extends BaseSpec {
       slackGateway = slackGateway,
       gitHubGateway = gitHubGateway,
       notificationMessageFactory = new NotificationMessageFactory(TimeProviderStub),
-      userRepository = UserRepositoryStub,
+      userRepository = userRepository,
       timeProvider = TimeProviderStub
     ).execute()
 
