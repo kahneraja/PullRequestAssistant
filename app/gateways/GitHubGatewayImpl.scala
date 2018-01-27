@@ -29,7 +29,7 @@ class GitHubGatewayImpl @Inject()(
       "Authorization" -> s"token ${config.githubToken}"
     }
 
-    httpClient.get(s"$url?state=$state&perPage=$perPage", headers)
+    httpClient.get(s"$url?state=$state&per_page=$perPage", headers)
       .map { jsValue ⇒
         jsValue.as[List[PullRequest]]
       }
