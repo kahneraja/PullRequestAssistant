@@ -1,59 +1,98 @@
 package useCases
 
-import factories.{EventFactory, MemberFactory, NotificationMessageFactory, TeamFactory}
-import gateways.BaseSpec
-import gateways.testDoubles.{GitHubGatewayStub, SlackGatewaySpy, TimeProviderStub, UserRepositoryStub}
+import factories._
+import gateways.testDoubles.{TimeProviderStub, UserRepositoryStub}
+import gateways.{BaseSpec, GitHubGateway, SlackGateway}
+import org.mockito.Matchers.any
+import org.mockito.Mockito.{times, verify, when}
+import repositories.UserRepository
+
+import scala.concurrent.Future
 
 class NotifyRecentlyAssignedUseCaseTest extends BaseSpec {
 
   "When successful" should "notify one user" in {
 
-    val slackGatewaySpy = new SlackGatewaySpy()
-    val gitHubGatewayStub = new GitHubGatewayStub()
-    gitHubGatewayStub.stubbedEvents = List(EventFactory.build(
+    val minutes = 30
+    val events = List(EventFactory.build(
       event = "review_requested",
       requested_team = None,
       requested_reviewer = Some(MemberFactory.build()),
-      review_requester = Some(MemberFactory.build())
+      review_requester = Some(MemberFactory.build()),
+      created_at = TimeProviderStub.now().minusMinutes(minutes)
     ))
 
+    val userRepository = mock[UserRepository]
+    val slackGateway = mock[SlackGateway]
+    val gitHubGateway = mock[GitHubGateway]
+    val hours = 6
+    val pullRequests = List(PullRequestFactory.build(
+      updated_at = TimeProviderStub.now.minusHours(hours),
+      requested_reviewers = List(MemberFactory.build())
+    ))
+
+    when(gitHubGateway.getRepos())
+      .thenReturn(Future.successful(List(RepoFactory.build())))
+    when(gitHubGateway.getPullRequests(any[String]()))
+      .thenReturn(Future.successful(pullRequests))
+    when(userRepository.findUser(any[String]()))
+      .thenReturn(Future.successful(Some(UserFactory.build())))
+    when(gitHubGateway.getEvents(any[String]()))
+      .thenReturn(Future.successful(events))
+
     new NotifyRecentlyAssignedUseCase(
-      slackGateway = slackGatewaySpy,
-      gitHubGateway = gitHubGatewayStub,
+      slackGateway = slackGateway,
+      gitHubGateway = gitHubGateway,
       notificationMessageFactory = new NotificationMessageFactory(TimeProviderStub),
       userRepository = UserRepositoryStub,
       timeProvider = TimeProviderStub
     ).execute()
 
     eventually {
-      slackGatewaySpy.messages shouldEqual List(("stub-slack-name","@stub-slack-name tagged you on a pr.\n*Title*\nhttp://"))
+      verify(slackGateway, times(1)).postMessage(any[String], any[String])
     }
   }
 
   "When successful" should "notify a team of users" in {
 
-    val slackGatewaySpy = new SlackGatewaySpy()
-    val gitHubGatewayStub = new GitHubGatewayStub()
-    gitHubGatewayStub.stubbedEvents = List(EventFactory.build(
+    val userRepository = mock[UserRepository]
+    val slackGateway = mock[SlackGateway]
+    val gitHubGateway = mock[GitHubGateway]
+
+    val minutes = 30
+    val events = List(EventFactory.build(
       event = "review_requested",
       requested_team = Some(TeamFactory.build()),
       requested_reviewer = None,
-      review_requester = Some(MemberFactory.build())
+      review_requester = Some(MemberFactory.build()),
+      created_at = TimeProviderStub.now().minusMinutes(minutes)
     ))
+    val pullRequests = List(PullRequestFactory.build(
+      requested_reviewers = List(MemberFactory.build())
+    ))
+    val teamMembers = List(MemberFactory.build(), MemberFactory.build())
 
+    when(gitHubGateway.getRepos())
+      .thenReturn(Future.successful(List(RepoFactory.build())))
+    when(gitHubGateway.getPullRequests(any[String]()))
+      .thenReturn(Future.successful(pullRequests))
+    when(userRepository.findUser(any[String]()))
+      .thenReturn(Future.successful(Some(UserFactory.build())))
+    when(gitHubGateway.getEvents(any[String]()))
+      .thenReturn(Future.successful(events))
+    when(gitHubGateway.getTeamMembers(any[String]()))
+      .thenReturn(Future.successful(teamMembers))
+    
     new NotifyRecentlyAssignedUseCase(
-      slackGateway = slackGatewaySpy,
-      gitHubGateway = gitHubGatewayStub,
+      slackGateway = slackGateway,
+      gitHubGateway = gitHubGateway,
       notificationMessageFactory = new NotificationMessageFactory(TimeProviderStub),
       userRepository = UserRepositoryStub,
       timeProvider = TimeProviderStub
     ).execute()
 
     eventually {
-      slackGatewaySpy.messages shouldEqual List(
-        ("stub-slack-name","@stub-slack-name tagged you on a pr.\n*Title*\nhttp://"),
-        ("stub-slack-name","@stub-slack-name tagged you on a pr.\n*Title*\nhttp://")
-      )
+      verify(slackGateway, times(2)).postMessage(any[String], any[String])
     }
   }
 
