@@ -5,11 +5,12 @@ import javax.inject._
 
 import domain.GitHub.{PullRequest, PullRequestResponse}
 import filters.ClosedPullRequestFilter
-import gateways.{GitHubGateway, Logger}
+import gateways.GitHubGateway
 import play.api.cache.AsyncCacheApi
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.Json
 import play.api.mvc._
 import repositories.UserRepository
+import scala.concurrent.duration._
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -42,7 +43,8 @@ class HomeController @Inject()(
     }
   }
 
-  private def getPullRequests: Future[List[PullRequest]] = cache.getOrElseUpdate[List[PullRequest]]("pullRequests") {
+  private def getPullRequests: Future[List[PullRequest]] = cache
+    .getOrElseUpdate[List[PullRequest]]("pullRequests", 24.hours) {
     for {
       repos <- gitHubGateway.getRepos()
       pullRequests <- {
