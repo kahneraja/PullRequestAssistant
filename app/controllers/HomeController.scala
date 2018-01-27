@@ -37,7 +37,7 @@ class HomeController @Inject()(
         val dayOfWeek = pullRequest.created_at.getDayOfWeek.getValue - 1
         val label = pullRequest.created_at.minusDays(dayOfWeek).toLocalDate
         val hours = pullRequest.created_at.until(pullRequest.closed_at.get, ChronoUnit.HOURS).toInt
-        new PullRequestResponse(label, hours)
+        new PullRequestResponse(pullRequest.title, pullRequest.html_url,label, hours)
       }
       Ok(Json.toJson(responses))
     }
