@@ -1,5 +1,6 @@
 package controllers
 
+import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 import javax.inject._
 
@@ -10,8 +11,8 @@ import play.api.cache.AsyncCacheApi
 import play.api.libs.json.Json
 import play.api.mvc._
 import repositories.UserRepository
-import scala.concurrent.duration._
 
+import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
 
 /**
@@ -31,13 +32,21 @@ class HomeController @Inject()(
     Ok(views.html.index("PullRequestAssistant"))
   }
 
+  private def startOfWeek(localDateTime: LocalDateTime) = {
+    val dayOfWeek = localDateTime.getDayOfWeek.getValue - 1
+    localDateTime.minusDays(dayOfWeek).toLocalDate
+  }
+
   def metrics: Action[AnyContent] = Action.async {
     getPullRequests.map { pullRequests =>
       val responses = ClosedPullRequestFilter.filter(pullRequests).map { pullRequest =>
-        val dayOfWeek = pullRequest.created_at.getDayOfWeek.getValue - 1
-        val label = pullRequest.created_at.minusDays(dayOfWeek).toLocalDate
-        val hours = pullRequest.created_at.until(pullRequest.closed_at.get, ChronoUnit.HOURS).toInt
-        new PullRequestResponse(pullRequest.title, pullRequest.html_url,label, hours)
+        new PullRequestResponse(
+          title = pullRequest.title,
+          url = pullRequest.html_url,
+          created = startOfWeek(pullRequest.created_at),
+          closed = startOfWeek(pullRequest.closed_at.get),
+          hours = pullRequest.created_at.until(pullRequest.closed_at.get, ChronoUnit.HOURS).toInt
+        )
       }
       Ok(Json.toJson(responses))
     }

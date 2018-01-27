@@ -18,7 +18,7 @@
                 $.getJSON("metrics", function (pullRequests) {
 
                     var labels = _(pullRequests).chain().flatten()
-                            .pluck('label')
+                            .pluck('closed')
                             .unique()
                             .sortBy(function (label) {
                                 return label;
@@ -27,14 +27,21 @@
 
                     var totalClosedData = _.map(labels, function (label) {
                         var filteredPullRequests = _.filter(pullRequests, function (pullRequest) {
-                            return pullRequest.label === label;
+                            return pullRequest.closed === label;
+                        });
+                        return filteredPullRequests.length;
+                    });
+
+                    var totalCreatedData = _.map(labels, function (label) {
+                        var filteredPullRequests = _.filter(pullRequests, function (pullRequest) {
+                            return pullRequest.created === label;
                         });
                         return filteredPullRequests.length;
                     });
 
                     var averageTimeData = _.map(labels, function (label) {
                         var filteredPullRequests = _.filter(pullRequests, function (pullRequest) {
-                            return pullRequest.label === label;
+                            return pullRequest.closed === label;
                         });
                         var totalHours = _.reduce(filteredPullRequests, function (num, pullRequest) {
                             return pullRequest.hours + num;
@@ -51,15 +58,21 @@
                                 fill: false,
                                 backgroundColor: "#fc416a",
                                 borderColor: "#fc416a",
-                                yAxisID: 'A',
+                                yAxisID: 'A'
                             },
                             {
                                 label: 'Total approvals',
-                                data: totalClosedData,
+                                data: totalCreatedData,
                                 backgroundColor: "#1d9dfc",
                                 borderColor: "#1d9dfc",
                                 fill: false,
-                                yAxisID: 'B',
+                                yAxisID: 'B'
+                            },
+                            {
+                                label: 'Total created',
+                                data: totalClosedData,
+                                fill: false,
+                                yAxisID: 'C'
                             }
                         ]
                     };
@@ -110,6 +123,15 @@
                                     },
                                     {
                                         id: 'B',
+                                        type: 'linear',
+                                        display: false,
+                                        scaleLabel: {
+                                            display: false,
+                                            labelString: 'Value'
+                                        }
+                                    },
+                                    {
+                                        id: 'C',
                                         type: 'linear',
                                         display: false,
                                         scaleLabel: {
