@@ -1,6 +1,6 @@
 package useCases
 
-import domain.GitHub.{PullRequest, Repo}
+import domain.GitHub.PullRequest
 import domain.User
 import factories.NotificationMessageFactory
 import filters.IdlePullRequestFilter
