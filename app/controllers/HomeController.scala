@@ -34,8 +34,8 @@ class HomeController @Inject()(
   def metrics: Action[AnyContent] = Action.async {
     getPullRequests.map { pullRequests =>
       val responses = ClosedPullRequestFilter.filter(pullRequests).map { pullRequest =>
-        val dayofWeek = pullRequest.created_at.getDayOfWeek.getValue - 1
-        val label = pullRequest.created_at.minusDays(dayofWeek).toLocalDate
+        val dayOfWeek = pullRequest.created_at.getDayOfWeek.getValue - 1
+        val label = pullRequest.created_at.minusDays(dayOfWeek).toLocalDate
         val hours = pullRequest.created_at.until(pullRequest.closed_at.get, ChronoUnit.HOURS).toInt
         new PullRequestResponse(label, hours)
       }
