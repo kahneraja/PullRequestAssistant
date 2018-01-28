@@ -36,4 +36,14 @@ class LocalDateTimeTests extends BaseSpec {
     localDateTime.minutesToNextHour shouldBe 40
   }
 
+  "At 8pm" should "have 4 hours to midnight" in {
+    val localDateTime = LocalDateTime.of(2018, 1, 1, 20, 0)
+    localDateTime.hoursToMidnight shouldBe 4
+  }
+
+  "At 2:30am" should "have 22 hours to midnight" in {
+    val localDateTime = LocalDateTime.of(2018, 1, 1, 2, 30)
+    localDateTime.hoursToMidnight shouldBe 22
+  }
+
 }

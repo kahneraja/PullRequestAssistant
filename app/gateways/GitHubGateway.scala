@@ -1,10 +1,12 @@
 package gateways
 
-import domain.GitHub.{Event, Member, PullRequest, Repo}
+import domain.GitHub._
 
 import scala.concurrent.Future
 
 trait GitHubGateway {
+  def getFiles(url: String): Future[List[File]]
+
   val PER_PAGE: Int = 100
 
   def getEvents(url: String): Future[List[Event]]

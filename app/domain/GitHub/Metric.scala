@@ -4,15 +4,16 @@ import java.time.LocalDate
 
 import play.api.libs.json.{Json, OFormat}
 
-case class PullRequestResponse(
+case class Metric(
   title: String,
   url: String,
   created: LocalDate,
   closed: LocalDate,
-  hours: Int
+  hours: Int,
+  changes: Int
 ) {
 }
 
-object PullRequestResponse {
-  implicit val format: OFormat[PullRequestResponse] = Json.format[PullRequestResponse]
+object Metric {
+  implicit val format: OFormat[Metric] = Json.format[Metric]
 }

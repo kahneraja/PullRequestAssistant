@@ -2,7 +2,7 @@ package gateways
 
 import javax.inject.Inject
 
-import domain.GitHub.{Event, Member, PullRequest, Repo}
+import domain.GitHub._
 
 import scala.concurrent.ExecutionContext.Implicits._
 import scala.concurrent.Future
@@ -62,4 +62,17 @@ class GitHubGatewayImpl @Inject()(
       }
   }
 
+  def getFiles(url: String): Future[List[File]] = {
+    val headers: (String, String) = {
+      "Authorization" -> s"token ${
+        config.githubToken
+      }"
+    }
+
+    httpClient.get(url, headers)
+      .map {
+        jsValue ⇒
+          jsValue.as[List[File]]
+      }
+  }
 }

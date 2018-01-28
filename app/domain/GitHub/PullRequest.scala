@@ -8,6 +8,7 @@ import play.api.libs.json.{Json, OFormat}
 
 case class PullRequest(
   title: String,
+  url: String,
   html_url: String,
   created_at: LocalDateTime,
   updated_at: LocalDateTime,
@@ -15,7 +16,8 @@ case class PullRequest(
   user: Member,
   requested_reviewers: List[Member],
   requested_teams: List[Team],
-  _links: Links
+  _links: Links,
+  files: Option[List[File]]
 ) {
   def getHoursSinceUpdated(timeProvider: TimeProvider): Int = {
     updated_at.until(timeProvider.now(), ChronoUnit.HOURS).toInt

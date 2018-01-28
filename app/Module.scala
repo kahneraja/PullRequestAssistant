@@ -20,9 +20,11 @@ class Module extends AbstractModule {
     bind(classOf[Clock]).toInstance(Clock.systemDefaultZone)
     bind(classOf[UserRepository]).to(classOf[UserRepositoryImpl])
     bind(classOf[GitHubGateway]).to(classOf[GitHubGatewayImpl])
+    bind(classOf[SlackGateway]).to(classOf[SlackGatewayImpl])
     bind(classOf[HttpClient]).to(classOf[HttpClientImpl])
     bind(classOf[GatewayConfig]).to(classOf[GatewayConfigImpl])
     bind(classOf[TimeProvider]).to(classOf[TimeProviderImpl])
+    bind(classOf[MetricsRepository]).to(classOf[MetricsRepositoryImpl])
   }
 
 }

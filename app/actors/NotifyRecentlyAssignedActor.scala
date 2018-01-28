@@ -18,15 +18,17 @@ class NotifyRecentlyAssignedActor @Inject()()(
   memberRepository: UserRepository,
   httpClient: HttpClient,
   gatewayConfig: GatewayConfig,
-  timeProvider: TimeProvider
+  timeProvider: TimeProvider,
+  slackGateway: SlackGateway,
+  gitHubGateway: GitHubGateway
 ) extends Actor {
   override def receive: Receive = {
     case _ =>
       if (timeProvider.est().isDuringOfficeHours) {
         Logger.info("Execute: NotifyRecentlyAssignedUseCase")
         new NotifyRecentlyAssignedUseCase(
-          slackGateway = new SlackGatewayImpl(httpClient, gatewayConfig),
-          gitHubGateway = new GitHubGatewayImpl(httpClient, gatewayConfig, timeProvider),
+          slackGateway = slackGateway,
+          gitHubGateway = gitHubGateway,
           notificationMessageFactory = new NotificationMessageFactory(timeProvider),
           userRepository = memberRepository,
           timeProvider = timeProvider

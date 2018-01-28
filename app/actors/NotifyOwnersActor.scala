@@ -18,6 +18,8 @@ class NotifyOwnersActor @Inject()()(
   memberRepository: UserRepository,
   httpClient: HttpClient,
   gatewayConfig: GatewayConfig,
+  slackGateway: SlackGateway,
+  gitHubGateway: GitHubGateway,
   timeProvider: TimeProvider
 ) extends Actor {
   override def receive: Receive = {
@@ -25,8 +27,8 @@ class NotifyOwnersActor @Inject()()(
       if (timeProvider.est().isDuringOfficeHours) {
         Logger.info("Execute: NotifyOwnersUseCase")
         new NotifyOwnersUseCase(
-          slackGateway = new SlackGatewayImpl(httpClient, gatewayConfig),
-          gitHubGatway = new GitHubGatewayImpl(httpClient, gatewayConfig, timeProvider),
+          slackGateway = slackGateway,
+          gitHubGatway = gitHubGateway,
           notificationMessageFactory = new NotificationMessageFactory(timeProvider),
           userRepository = memberRepository,
           timeProvider = timeProvider

@@ -106,4 +106,24 @@ class GitHubGatewayTest extends BaseSpec {
     }
   }
 
+  "GitHubGateway" should "transform a file" in {
+    val sampleJson = Some(
+      """
+        |[
+        |  {
+        |    "filename": "file1.txt",
+        |    "changes": 124
+        |  }
+        |]
+      """.stripMargin)
+    val httpClient = new HttpClientStub()
+    httpClient.stubbedJson = sampleJson
+
+    val gateway = new GitHubGatewayImpl(httpClient, GatewayConfigStub, TimeProviderStub)
+
+    whenReady(gateway.getFiles("")) { files =>
+      files.size shouldBe 1
+    }
+  }
+
 }

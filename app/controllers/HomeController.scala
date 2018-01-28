@@ -1,19 +1,15 @@
 package controllers
 
-import java.time.LocalDateTime
-import java.time.temporal.ChronoUnit
 import javax.inject._
 
-import domain.GitHub.{PullRequest, PullRequestResponse}
-import filters.ClosedPullRequestFilter
 import gateways.GitHubGateway
-import play.api.cache.AsyncCacheApi
+import play.api.Logger
 import play.api.libs.json.Json
 import play.api.mvc._
-import repositories.UserRepository
+import repositories.MetricsRepository
+import useCases.CollectMetricsUseCase
 
-import scala.concurrent.duration._
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 /**
   * This controller creates an `Action` to handle HTTP requests to the
@@ -22,9 +18,8 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class HomeController @Inject()(
   cc: ControllerComponents,
-  memberRepository: UserRepository,
-  gitHubGateway: GitHubGateway,
-  cache: AsyncCacheApi
+  metricsRepository: MetricsRepository,
+  gitHubGateway: GitHubGateway
 )(implicit ec: ExecutionContext)
   extends AbstractController(cc) {
 
@@ -32,37 +27,18 @@ class HomeController @Inject()(
     Ok(views.html.index("PullRequestAssistant"))
   }
 
-  private def startOfWeek(localDateTime: LocalDateTime) = {
-    val dayOfWeek = localDateTime.getDayOfWeek.getValue - 1
-    localDateTime.minusDays(dayOfWeek).toLocalDate
-  }
-
   def metrics: Action[AnyContent] = Action.async {
-    getPullRequests.map { pullRequests =>
-      val responses = ClosedPullRequestFilter.filter(pullRequests).map { pullRequest =>
-        new PullRequestResponse(
-          title = pullRequest.title,
-          url = pullRequest.html_url,
-          created = startOfWeek(pullRequest.created_at),
-          closed = startOfWeek(pullRequest.closed_at.get),
-          hours = pullRequest.created_at.until(pullRequest.closed_at.get, ChronoUnit.HOURS).toInt
-        )
-      }
-      Ok(Json.toJson(responses))
+    metricsRepository.findAll().map { metrics =>
+      Ok(Json.toJson(metrics))
     }
   }
 
-  private def getPullRequests: Future[List[PullRequest]] = cache
-    .getOrElseUpdate[List[PullRequest]]("pullRequests", 24.hours) {
-    for {
-      repos <- gitHubGateway.getRepos()
-      pullRequests <- {
-        val futures = repos.map { repo =>
-          gitHubGateway.getPullRequests(s"${repo.url}/pulls", "closed")
-        }
-        Future.sequence(futures)
-      }
-    } yield pullRequests.flatten
+  def reset: Action[AnyContent] = Action {
+    Logger.info("Execute: CollectMetricsUseCase")
+    new CollectMetricsUseCase(
+      gitHubGateway = gitHubGateway,
+      metricsRepository = metricsRepository
+    ).execute()
+    Ok(Json.obj())
   }
-
 }

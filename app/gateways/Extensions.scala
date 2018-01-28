@@ -21,5 +21,6 @@ object Extensions {
     }
 
     val minutesToNextHour = Math.abs(localDateTime.getMinute() - 60) + 0
+    val hoursToMidnight = Math.abs(localDateTime.getHour() - 24) + 0
   }
 }

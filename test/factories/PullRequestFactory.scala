@@ -8,6 +8,7 @@ import gateways.testDoubles.TimeProviderStub
 object PullRequestFactory {
 
   def build(
+    url: String = "http://",
     html_url: String = "http://",
     title: String = "Title",
     created_at: LocalDateTime = TimeProviderStub.now(),
@@ -15,10 +16,12 @@ object PullRequestFactory {
     closed_at: Option[LocalDateTime] = None,
     _links: Links = new Links(new Issue("")),
     requested_reviewers: List[Member] = List.empty,
-    requested_teams: List[Team] = List.empty
+    requested_teams: List[Team] = List.empty,
+    files: Option[List[File]] = None
   ): PullRequest = {
     new PullRequest(
       title = title,
+      url = url,
       html_url = html_url,
       created_at = created_at,
       updated_at = updated_at,
@@ -26,7 +29,8 @@ object PullRequestFactory {
       user = MemberFactory.build(),
       _links = _links,
       requested_reviewers = requested_reviewers,
-      requested_teams = requested_teams
+      requested_teams = requested_teams,
+      files = files
     )
   }
 
