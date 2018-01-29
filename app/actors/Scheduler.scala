@@ -21,7 +21,7 @@ class Scheduler @Inject()(
 
   Logger.log("Schedule Actors")
 
-  system.scheduler.schedule(now.hoursToMidnight.hours, 1.days, collectMetricsActor, None)
+  system.scheduler.schedule(now.hoursToMidnight.hours + 10.minutes, 1.days, collectMetricsActor, None)
 
   system.scheduler.schedule(now.minutesToNextHour.minutes, 1.hours, notifyReviewersActor, None)
   system.scheduler.schedule((now.minutesToNextHour + 20).minutes, 1.hours, notifyRecentlyAssignedActor, None)
