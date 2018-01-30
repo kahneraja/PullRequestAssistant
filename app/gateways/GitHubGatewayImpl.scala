@@ -75,4 +75,18 @@ class GitHubGatewayImpl @Inject()(
           jsValue.as[List[File]]
       }
   }
+
+  def getComments(url: String): Future[List[Comment]] = {
+    val headers: (String, String) = {
+      "Authorization" -> s"token ${
+        config.githubToken
+      }"
+    }
+
+    httpClient.get(url, headers)
+      .map {
+        jsValue ⇒
+          jsValue.as[List[Comment]]
+      }
+  }
 }

@@ -34,6 +34,9 @@ class GitHubGatewayTest extends BaseSpec {
         |    "_links": {
         |      "issue": {
         |        "href": "https://"
+        |      },
+        |      "comments": {
+        |        "href": "https://"
         |      }
         |    }
         |  }
@@ -123,6 +126,26 @@ class GitHubGatewayTest extends BaseSpec {
 
     whenReady(gateway.getFiles("")) { files =>
       files.size shouldBe 1
+    }
+  }
+  
+  "GitHubGateway" should "transform a comment" in {
+    val sampleJson = Some(
+      """
+        |[
+        |  {
+        |    "url": "http://",
+        |    "body": "message"
+        |  }
+        |]
+      """.stripMargin)
+    val httpClient = new HttpClientStub()
+    httpClient.stubbedJson = sampleJson
+
+    val gateway = new GitHubGatewayImpl(httpClient, GatewayConfigStub, TimeProviderStub)
+
+    whenReady(gateway.getComments("")) { comments =>
+      comments.size shouldBe 1
     }
   }
 

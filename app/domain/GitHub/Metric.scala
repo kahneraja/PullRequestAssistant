@@ -10,7 +10,8 @@ case class Metric(
   created: LocalDate,
   closed: LocalDate,
   hours: Int,
-  changes: Int
+  changes: Int,
+  comments: Int
 ) {
 }
 

@@ -6,6 +6,7 @@ import scala.concurrent.Future
 
 trait GitHubGateway {
   def getFiles(url: String): Future[List[File]]
+  def getComments(url: String): Future[List[Comment]]
 
   val PER_PAGE: Int = 100
 

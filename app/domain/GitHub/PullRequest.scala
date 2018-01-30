@@ -17,7 +17,8 @@ case class PullRequest(
   requested_reviewers: List[Member],
   requested_teams: List[Team],
   _links: Links,
-  files: Option[List[File]]
+  files: Option[List[File]],
+  comments: Option[List[Comment]]
 ) {
   def getHoursSinceUpdated(timeProvider: TimeProvider): Int = {
     updated_at.until(timeProvider.now(), ChronoUnit.HOURS).toInt
