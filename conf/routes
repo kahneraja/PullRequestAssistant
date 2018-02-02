@@ -4,6 +4,7 @@
 # ~~~~
 
 # An example controller showing a sample home page
-GET        /               controllers.HomeController.index
-GET        /metrics        controllers.HomeController.metrics
-GET        /reset          controllers.HomeController.reset
+GET         /               controllers.HomeController.index
+GET         /metrics        controllers.HomeController.metrics
+GET         /reset          controllers.HomeController.reset
+POST        /auth           controllers.HomeController.auth

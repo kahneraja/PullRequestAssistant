@@ -2,14 +2,15 @@ package controllers
 
 import javax.inject._
 
+import domain.GitHub.AuthTokenRequest
 import gateways.GitHubGateway
 import play.api.Logger
-import play.api.libs.json.Json
+import play.api.libs.json.{JsValue, Json, Reads}
 import play.api.mvc._
 import repositories.MetricsRepository
 import useCases.CollectMetricsUseCase
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 /**
   * This controller creates an `Action` to handle HTTP requests to the
@@ -40,5 +41,18 @@ class HomeController @Inject()(
       metricsRepository = metricsRepository
     ).execute()
     Ok(Json.obj())
+  }
+
+  def auth: Action[JsValue] = Action.async(parse.json) { request =>
+    request.body.validate[AuthTokenRequest].fold(
+      _ => {
+        Future.successful(BadRequest(Json.obj()))
+      },
+      authTokenRequest => {
+        gitHubGateway.createAccessToken(authTokenRequest).map { accessToken =>
+          Ok(Json.toJson(accessToken))
+        }
+      }
+    )
   }
 }

@@ -10,8 +10,10 @@ class HttpClientStub extends HttpClient {
 
   var stubbedJson: Option[String] = None
 
-  override def post(url: String, body: JsObject, headers: (String, String)*) = {
-    throw new NotImplementedError()
+  override def post(url: String, body: JsObject, headers: (String, String)*): Future[JsValue] = {
+    Future {
+      Json.parse(stubbedJson.get)
+    }
   }
 
   override def get(url: String, headers: (String, String)*): Future[JsValue] = {

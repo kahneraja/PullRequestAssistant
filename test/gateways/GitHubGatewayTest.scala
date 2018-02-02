@@ -1,5 +1,6 @@
 package gateways
 
+import factories.AuthTokenRequestFactory
 import gateways.testDoubles.{GatewayConfigStub, HttpClientStub, TimeProviderStub}
 
 class GitHubGatewayTest extends BaseSpec {
@@ -128,7 +129,7 @@ class GitHubGatewayTest extends BaseSpec {
       files.size shouldBe 1
     }
   }
-  
+
   "GitHubGateway" should "transform a comment" in {
     val sampleJson = Some(
       """
@@ -146,6 +147,23 @@ class GitHubGatewayTest extends BaseSpec {
 
     whenReady(gateway.getComments("")) { comments =>
       comments.size shouldBe 1
+    }
+  }
+
+  "GitHubGateway" should "transform an access token" in {
+    val sampleJson = Some(
+      """
+        |{
+        |  "access_token":"stub-access-token"
+        |}
+      """.stripMargin)
+    val httpClient = new HttpClientStub()
+    httpClient.stubbedJson = sampleJson
+
+    val gateway = new GitHubGatewayImpl(httpClient, GatewayConfigStub, TimeProviderStub)
+
+    whenReady(gateway.createAccessToken(AuthTokenRequestFactory.build())) { accessToken =>
+      accessToken.access_token shouldBe "stub-access-token"
     }
   }
 

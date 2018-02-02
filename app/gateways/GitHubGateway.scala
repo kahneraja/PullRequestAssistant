@@ -5,6 +5,7 @@ import domain.GitHub._
 import scala.concurrent.Future
 
 trait GitHubGateway {
+
   def getFiles(url: String): Future[List[File]]
   def getComments(url: String): Future[List[Comment]]
 
@@ -17,4 +18,6 @@ trait GitHubGateway {
   def getRepos(): Future[List[Repo]]
 
   def getTeamMembers(url: String): Future[List[Member]]
+
+  def createAccessToken(authTokenRequest: AuthTokenRequest): Future[AuthTokenResponse]
 }

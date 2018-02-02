@@ -3,6 +3,7 @@ package gateways
 import javax.inject.Inject
 
 import domain.GitHub._
+import play.api.libs.json.Json
 
 import scala.concurrent.ExecutionContext.Implicits._
 import scala.concurrent.Future
@@ -12,6 +13,19 @@ class GitHubGatewayImpl @Inject()(
   config: GatewayConfig,
   timeProvider: TimeProvider
 ) extends GitHubGateway {
+
+  def createAccessToken(authTokenRequest: AuthTokenRequest): Future[AuthTokenResponse] = {
+    val url = s"https://github.com/login/oauth/access_token"
+
+    val headers: (String, String) = {
+      "Accept" -> "application/json"
+    }
+
+    httpClient.post(url, Json.toJsObject(authTokenRequest), headers)
+      .map { jsValue ⇒
+        jsValue.as[AuthTokenResponse]
+      }
+  }
 
   def getEvents(url: String): Future[List[Event]] = {
     val headers: (String, String) = {
