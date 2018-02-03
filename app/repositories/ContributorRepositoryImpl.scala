@@ -2,7 +2,7 @@ package repositories
 
 import javax.inject.Inject
 
-import domain.User
+import domain.Contributor
 import play.modules.reactivemongo.ReactiveMongoApi
 import play.modules.reactivemongo.json._
 import reactivemongo.bson.BSONDocument
@@ -10,13 +10,13 @@ import reactivemongo.play.json.collection.JSONCollection
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class UserRepositoryImpl @Inject()(implicit ec: ExecutionContext, reactiveMongoApi: ReactiveMongoApi)
-  extends UserRepository {
+class ContributorRepositoryImpl @Inject()(implicit ec: ExecutionContext, reactiveMongoApi: ReactiveMongoApi)
+  extends ContributorRepository {
 
   def collection: Future[JSONCollection] = reactiveMongoApi.database.map(_.collection[JSONCollection]("members"))
 
-  override def findUser(githubName: String): Future[Option[User]] = {
+  override def find(githubName: String): Future[Option[Contributor]] = {
     val selector = BSONDocument("github_name" -> githubName)
-    collection.flatMap(_.find(selector).one[User])
+    collection.flatMap(_.find(selector).one[Contributor])
   }
 }

@@ -7,7 +7,7 @@ import factories.NotificationMessageFactory
 import gateways.Extensions._
 import gateways._
 import play.api.Logger
-import repositories.UserRepository
+import repositories.ContributorRepository
 import useCases.NotifyOwnersUseCase
 
 import scala.concurrent.ExecutionContext
@@ -15,7 +15,7 @@ import scala.concurrent.ExecutionContext
 @Singleton
 class NotifyOwnersActor @Inject()()(
   ec: ExecutionContext,
-  memberRepository: UserRepository,
+  memberRepository: ContributorRepository,
   httpClient: HttpClient,
   gatewayConfig: GatewayConfig,
   slackGateway: SlackGateway,
@@ -30,7 +30,7 @@ class NotifyOwnersActor @Inject()()(
           slackGateway = slackGateway,
           gitHubGatway = gitHubGateway,
           notificationMessageFactory = new NotificationMessageFactory(timeProvider),
-          userRepository = memberRepository,
+          contributorRepository = memberRepository,
           timeProvider = timeProvider
         ).execute()
       } else {

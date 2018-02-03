@@ -1,11 +1,11 @@
 package useCases
 
 import domain.GitHub.PullRequest
-import domain.User
+import domain.Contributor
 import factories.NotificationMessageFactory
 import filters.IdlePullRequestFilter
 import gateways.{GitHubGateway, Logger, SlackGateway, TimeProvider}
-import repositories.UserRepository
+import repositories.ContributorRepository
 
 import scala.concurrent.ExecutionContext.Implicits._
 import scala.concurrent.Future
@@ -14,11 +14,11 @@ class NotifyOwnersUseCase(
   slackGateway: SlackGateway,
   gitHubGatway: GitHubGateway,
   notificationMessageFactory: NotificationMessageFactory,
-  userRepository: UserRepository,
+  contributorRepository: ContributorRepository,
   timeProvider: TimeProvider
 ) {
 
-  def execute(): Future[List[Future[List[Future[Option[User]]]]]] = {
+  def execute(): Future[List[Future[List[Future[Option[Contributor]]]]]] = {
     gitHubGatway.getRepos().map { repos =>
       repos.map { repo =>
         gitHubGatway.getPullRequests(s"${repo.url}/pulls").map { pullRequests =>
@@ -30,8 +30,8 @@ class NotifyOwnersUseCase(
     }
   }
 
-  private def notify(pullRequest: PullRequest): Future[Option[User]] = {
-    userRepository.findUser(pullRequest.user.login).flatMap {
+  private def notify(pullRequest: PullRequest): Future[Option[Contributor]] = {
+    contributorRepository.find(pullRequest.user.login).flatMap {
       case None =>
         Logger.log(s"unable to resolve ${pullRequest.user.login}")
         Future.successful(None)

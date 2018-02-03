@@ -1,11 +1,11 @@
 package useCases
 
 import domain.GitHub.{Member, PullRequest}
-import domain.User
+import domain.Contributor
 import factories.NotificationMessageFactory
 import filters.IdlePullRequestFilter
 import gateways._
-import repositories.UserRepository
+import repositories.ContributorRepository
 
 import scala.concurrent.ExecutionContext.Implicits._
 import scala.concurrent.Future
@@ -14,11 +14,11 @@ class NotifyReviewersUseCase(
   slackGateway: SlackGateway,
   gitHubGateway: GitHubGateway,
   notificationMessageFactory: NotificationMessageFactory,
-  userRepository: UserRepository,
+  contributorRepository: ContributorRepository,
   timeProvider: TimeProvider
 ) {
 
-  def execute(): Future[List[Future[List[Future[List[Future[Option[User]]]]]]]] = {
+  def execute(): Future[List[Future[List[Future[List[Future[Option[Contributor]]]]]]]] = {
     gitHubGateway.getRepos().map { repos =>
       repos.map { repo =>
         gitHubGateway.getPullRequests(s"${repo.url}/pulls").map { pullRequests =>
@@ -48,15 +48,15 @@ class NotifyReviewersUseCase(
     }
   }
 
-  private def notifyMember(pullRequest: PullRequest, githubReviewer: Member): Future[Option[domain.User]] = {
-    userRepository.findUser(githubReviewer.login).flatMap {
+  private def notifyMember(pullRequest: PullRequest, githubReviewer: Member): Future[Option[domain.Contributor]] = {
+    contributorRepository.find(githubReviewer.login).flatMap {
       case None =>
         Logger.log(s"unable to resolve ${
           githubReviewer.login
         }")
         Future.successful(None)
       case Some(reviewer) => {
-        userRepository.findUser(pullRequest.user.login).flatMap {
+        contributorRepository.find(pullRequest.user.login).flatMap {
           case None =>
             Logger.log(s"unable to resolve ${
               pullRequest.user.login

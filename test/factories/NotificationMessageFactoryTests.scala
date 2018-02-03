@@ -11,7 +11,7 @@ class NotificationMessageFactoryTests extends BaseSpec {
       title = "Fix defect ABC",
       updated_at = TimeProviderStub.now().minusHours(2)
     )
-    val owner = UserFactory.build(slack_name = "john")
+    val owner = ContributorFactory.build(slack_name = "john")
     val message = new NotificationMessageFactory(TimeProviderStub)
       .buildReviewMessage(
         pullRequest,
@@ -25,7 +25,7 @@ class NotificationMessageFactoryTests extends BaseSpec {
       title = "Fix defect ABC",
       updated_at = TimeProviderStub.now().minusHours(2)
     )
-    val owner = UserFactory.build(slack_name = "john")
+    val owner = ContributorFactory.build(slack_name = "john")
     val message = new NotificationMessageFactory(TimeProviderStub)
       .buildOwnerMessage(
         pullRequest,
@@ -40,7 +40,7 @@ class NotificationMessageFactoryTests extends BaseSpec {
       title = "Fix defect ABC",
       updated_at = TimeProviderStub.now().minusHours(2)
     )
-    val owner = UserFactory.build(slack_name = "john")
+    val owner = ContributorFactory.build(slack_name = "john")
     val message = new NotificationMessageFactory(TimeProviderStub)
       .buildRecentlyAssignedMessage(
         event,

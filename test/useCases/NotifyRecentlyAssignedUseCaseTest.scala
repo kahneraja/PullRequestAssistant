@@ -5,7 +5,7 @@ import gateways.testDoubles.TimeProviderStub
 import gateways.{BaseSpec, GitHubGateway, SlackGateway}
 import org.mockito.Matchers.any
 import org.mockito.Mockito.{times, verify, when}
-import repositories.UserRepository
+import repositories.ContributorRepository
 
 import scala.concurrent.Future
 
@@ -22,7 +22,7 @@ class NotifyRecentlyAssignedUseCaseTest extends BaseSpec {
       created_at = TimeProviderStub.now().minusMinutes(minutes)
     ))
 
-    val userRepository = mock[UserRepository]
+    val contributorRepository = mock[ContributorRepository]
     val slackGateway = mock[SlackGateway]
     val gitHubGateway = mock[GitHubGateway]
     val hours = 6
@@ -35,8 +35,8 @@ class NotifyRecentlyAssignedUseCaseTest extends BaseSpec {
       .thenReturn(Future.successful(List(RepoFactory.build())))
     when(gitHubGateway.getPullRequests(any[String](), any[String](), any[Int]()))
       .thenReturn(Future.successful(pullRequests))
-    when(userRepository.findUser(any[String]()))
-      .thenReturn(Future.successful(Some(UserFactory.build())))
+    when(contributorRepository.find(any[String]()))
+      .thenReturn(Future.successful(Some(ContributorFactory.build())))
     when(gitHubGateway.getEvents(any[String]()))
       .thenReturn(Future.successful(events))
 
@@ -44,7 +44,7 @@ class NotifyRecentlyAssignedUseCaseTest extends BaseSpec {
       slackGateway = slackGateway,
       gitHubGateway = gitHubGateway,
       notificationMessageFactory = new NotificationMessageFactory(TimeProviderStub),
-      userRepository = userRepository,
+      contributorRepository = contributorRepository,
       timeProvider = TimeProviderStub
     ).execute()
 
@@ -53,9 +53,9 @@ class NotifyRecentlyAssignedUseCaseTest extends BaseSpec {
     }
   }
 
-  "When successful" should "notify a team of users" in {
+  "When successful" should "notify a team of contributors" in {
 
-    val userRepository = mock[UserRepository]
+    val contributorRepository = mock[ContributorRepository]
     val slackGateway = mock[SlackGateway]
     val gitHubGateway = mock[GitHubGateway]
 
@@ -76,18 +76,18 @@ class NotifyRecentlyAssignedUseCaseTest extends BaseSpec {
       .thenReturn(Future.successful(List(RepoFactory.build())))
     when(gitHubGateway.getPullRequests(any[String](), any[String](), any[Int]()))
       .thenReturn(Future.successful(pullRequests))
-    when(userRepository.findUser(any[String]()))
-      .thenReturn(Future.successful(Some(UserFactory.build())))
+    when(contributorRepository.find(any[String]()))
+      .thenReturn(Future.successful(Some(ContributorFactory.build())))
     when(gitHubGateway.getEvents(any[String]()))
       .thenReturn(Future.successful(events))
     when(gitHubGateway.getTeamMembers(any[String]()))
       .thenReturn(Future.successful(teamMembers))
-    
+
     new NotifyRecentlyAssignedUseCase(
       slackGateway = slackGateway,
       gitHubGateway = gitHubGateway,
       notificationMessageFactory = new NotificationMessageFactory(TimeProviderStub),
-      userRepository = userRepository,
+      contributorRepository = contributorRepository,
       timeProvider = TimeProviderStub
     ).execute()
 

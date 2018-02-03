@@ -4,7 +4,7 @@ import domain.GitHub.{Event, Member, PullRequest, Team}
 import factories.NotificationMessageFactory
 import filters.RecentReviewRequestEventFilter
 import gateways.{GitHubGateway, Logger, SlackGateway, TimeProvider}
-import repositories.UserRepository
+import repositories.ContributorRepository
 
 import scala.concurrent.ExecutionContext.Implicits._
 import scala.concurrent.Future
@@ -13,7 +13,7 @@ class NotifyRecentlyAssignedUseCase(
   slackGateway: SlackGateway,
   gitHubGateway: GitHubGateway,
   notificationMessageFactory: NotificationMessageFactory,
-  userRepository: UserRepository,
+  contributorRepository: ContributorRepository,
   timeProvider: TimeProvider
 ) {
 
@@ -48,12 +48,12 @@ class NotifyRecentlyAssignedUseCase(
   }
 
   private def notify(member: Member, event: Event, pullRequest: PullRequest): Future[Any] = {
-    userRepository.findUser(member.login).flatMap {
+    contributorRepository.find(member.login).flatMap {
       case None =>
         Logger.log(s"unable to resolve ${event.review_requester.get.login}")
         Future.successful(None)
       case Some(reviewer) =>
-        userRepository.findUser(reviewer.github_name).flatMap {
+        contributorRepository.find(reviewer.github_name).flatMap {
           case None =>
             Logger.log(s"unable to resolve ${event.review_requester.get.login}")
             Future.successful(None)
