@@ -1,13 +1,16 @@
 package controllers
 
+import java.util.UUID
 import javax.inject._
 
-import domain.GitHub.AuthTokenRequest
+import domain.GitHub.{AuthResponse, AuthTokenRequest}
+import domain.User
 import gateways.GitHubGateway
 import play.api.Logger
-import play.api.libs.json.{JsValue, Json, Reads}
+import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
-import repositories.MetricsRepository
+import reactivemongo.bson.BSONObjectID
+import repositories.{MetricRepository, UserRepository}
 import useCases.CollectMetricsUseCase
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -19,8 +22,9 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class HomeController @Inject()(
   cc: ControllerComponents,
-  metricsRepository: MetricsRepository,
-  gitHubGateway: GitHubGateway
+  metricRepository: MetricRepository,
+  gitHubGateway: GitHubGateway,
+  userRepository: UserRepository
 )(implicit ec: ExecutionContext)
   extends AbstractController(cc) {
 
@@ -29,7 +33,7 @@ class HomeController @Inject()(
   }
 
   def metrics: Action[AnyContent] = Action.async {
-    metricsRepository.findAll().map { metrics =>
+    metricRepository.findAll().map { metrics =>
       Ok(Json.toJson(metrics))
     }
   }
@@ -38,7 +42,7 @@ class HomeController @Inject()(
     Logger.info("Execute: CollectMetricsUseCase")
     new CollectMetricsUseCase(
       gitHubGateway = gitHubGateway,
-      metricsRepository = metricsRepository
+      metricRepository = metricRepository
     ).execute()
     Ok(Json.obj())
   }
@@ -50,7 +54,9 @@ class HomeController @Inject()(
       },
       authTokenRequest => {
         gitHubGateway.createAccessToken(authTokenRequest).map { accessToken =>
-          Ok(Json.toJson(accessToken))
+          val user = new User(UUID.randomUUID().toString, accessToken.access_token)
+          userRepository.insert(user)
+          Ok(Json.toJson(new AuthResponse(user._id)))
         }
       }
     )

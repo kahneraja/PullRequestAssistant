@@ -5,17 +5,17 @@ import java.time.temporal.ChronoUnit
 
 import domain.GitHub.{Metric, PullRequest}
 import gateways.GitHubGateway
-import repositories.MetricsRepository
+import repositories.MetricRepository
 
 import scala.concurrent.ExecutionContext.Implicits._
 import scala.concurrent.Future
 
 class CollectMetricsUseCase(
   gitHubGateway: GitHubGateway,
-  metricsRepository: MetricsRepository
+  metricRepository: MetricRepository
 ) {
   def execute(): Future[Unit] = {
-    metricsRepository.drop
+    metricRepository.drop
     getPullRequests.map { repos =>
       repos.map { repo =>
         repo.map { pullRequests =>
@@ -31,7 +31,7 @@ class CollectMetricsUseCase(
                   changes = getChanges(pullRequestWithFilesAndComments),
                   comments = pullRequestWithFilesAndComments.comments.getOrElse(List.empty).size
                 )
-                metricsRepository.insert(metric)
+                metricRepository.insert(metric)
               }
             }
           }

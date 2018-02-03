@@ -6,7 +6,7 @@ import reactivemongo.api.commands.WriteResult
 
 import scala.concurrent.Future
 
-trait MetricsRepository {
+trait MetricRepository {
   def findAll(): Future[List[Metric]]
 
   def insert(document: Metric)(implicit writer: OWrites[Metric]): Future[WriteResult]

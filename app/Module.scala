@@ -24,7 +24,8 @@ class Module extends AbstractModule {
     bind(classOf[HttpClient]).to(classOf[HttpClientImpl])
     bind(classOf[GatewayConfig]).to(classOf[GatewayConfigImpl])
     bind(classOf[TimeProvider]).to(classOf[TimeProviderImpl])
-    bind(classOf[MetricsRepository]).to(classOf[MetricsRepositoryImpl])
+    bind(classOf[MetricRepository]).to(classOf[MetricRepositoryImpl])
+    bind(classOf[UserRepository]).to(classOf[UserRepositoryImpl])
   }
 
 }

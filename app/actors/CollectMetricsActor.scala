@@ -5,7 +5,7 @@ import javax.inject.{Inject, Singleton}
 import akka.actor.Actor
 import gateways._
 import play.api.Logger
-import repositories.MetricsRepository
+import repositories.MetricRepository
 import useCases.CollectMetricsUseCase
 
 import scala.concurrent.ExecutionContext
@@ -14,7 +14,7 @@ import scala.concurrent.ExecutionContext
 class CollectMetricsActor @Inject()()(
   ec: ExecutionContext,
   gitHubGateway: GitHubGateway,
-  metricsRepository: MetricsRepository,
+  metricRepository: MetricRepository,
   gatewayConfig: GatewayConfig
 ) extends Actor {
   override def receive: Receive = {
@@ -22,7 +22,7 @@ class CollectMetricsActor @Inject()()(
       Logger.info("Execute: CollectMetricsUseCase")
       new CollectMetricsUseCase(
         gitHubGateway = gitHubGateway,
-        metricsRepository = metricsRepository
+        metricRepository = metricRepository
       ).execute()
   }
 }

@@ -12,8 +12,8 @@ import reactivemongo.play.json.collection.JSONCollection
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class MetricsRepositoryImpl @Inject()(implicit ec: ExecutionContext, reactiveMongoApi: ReactiveMongoApi)
-extends MetricsRepository {
+class MetricRepositoryImpl @Inject()(implicit ec: ExecutionContext, reactiveMongoApi: ReactiveMongoApi)
+extends MetricRepository {
 
   def collection: Future[JSONCollection] = reactiveMongoApi.database.map(_.collection[JSONCollection]("metrics"))
 
