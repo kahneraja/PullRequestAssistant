@@ -3,13 +3,12 @@ package controllers
 import java.util.UUID
 import javax.inject._
 
-import domain.GitHub.{AuthResponse, AuthTokenRequest}
+import domain.GitHub.AuthTokenRequest
 import domain.User
 import gateways.GitHubGateway
 import play.api.Logger
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
-import reactivemongo.bson.BSONObjectID
 import repositories.{MetricRepository, UserRepository}
 import useCases.CollectMetricsUseCase
 
@@ -56,7 +55,7 @@ class HomeController @Inject()(
         gitHubGateway.createAccessToken(authTokenRequest).map { accessToken =>
           val user = new User(UUID.randomUUID().toString, accessToken.access_token)
           userRepository.insert(user)
-          Ok(Json.toJson(new AuthResponse(user._id)))
+          Ok(Json.toJson(user))
         }
       }
     )
