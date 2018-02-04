@@ -26,6 +26,7 @@ class Module extends AbstractModule {
     bind(classOf[TimeProvider]).to(classOf[TimeProviderImpl])
     bind(classOf[MetricRepository]).to(classOf[MetricRepositoryImpl])
     bind(classOf[UserRepository]).to(classOf[UserRepositoryImpl])
+    bind(classOf[OrgRepository]).to(classOf[OrgRepositoryImpl])
   }
 
 }
