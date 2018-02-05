@@ -1,6 +1,6 @@
 package factories
 
-import domain.GitHub.{AuthTokenRequest, Event}
+import domain.GitHub.AuthTokenRequest
 
 object AuthTokenRequestFactory {
   def build(

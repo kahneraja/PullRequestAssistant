@@ -4,8 +4,9 @@
 # ~~~~
 
 # An example controller showing a sample home page
-GET         /                         controllers.HomeController.index
-GET         /metrics                  controllers.HomeController.metrics
-GET         /reset                    controllers.HomeController.reset
-POST        /auth                     controllers.HomeController.auth
+GET         /                          controllers.HomeController.index
+GET         /metrics                   controllers.HomeController.metrics
+GET         /reset                     controllers.HomeController.reset
+POST        /github/token              controllers.GitHubController.createToken
+POST        /slack/token               controllers.SlackController.createToken
 POST        /users/:userId/orgs        controllers.UserController.addOrg(userId: String)

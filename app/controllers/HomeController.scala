@@ -5,7 +5,7 @@ import javax.inject._
 
 import domain.GitHub.AuthTokenRequest
 import domain.User
-import gateways.GitHubGateway
+import gateways.{GitHubGateway, SlackGateway}
 import play.api.Logger
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
@@ -23,6 +23,7 @@ class HomeController @Inject()(
   cc: ControllerComponents,
   metricRepository: MetricRepository,
   gitHubGateway: GitHubGateway,
+  slackGateway: SlackGateway,
   userRepository: UserRepository
 )(implicit ec: ExecutionContext)
   extends AbstractController(cc) {
@@ -44,20 +45,5 @@ class HomeController @Inject()(
       metricRepository = metricRepository
     ).execute()
     Ok(Json.obj())
-  }
-
-  def auth: Action[JsValue] = Action.async(parse.json) { request =>
-    request.body.validate[AuthTokenRequest].fold(
-      _ => {
-        Future.successful(BadRequest(Json.obj()))
-      },
-      authTokenRequest => {
-        gitHubGateway.createAccessToken(authTokenRequest).map { accessToken =>
-          val user = new User(UUID.randomUUID().toString, accessToken.access_token)
-          userRepository.insert(user)
-          Ok(Json.toJson(user))
-        }
-      }
-    )
   }
 }

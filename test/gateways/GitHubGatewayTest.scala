@@ -162,8 +162,8 @@ class GitHubGatewayTest extends BaseSpec {
 
     val gateway = new GitHubGatewayImpl(httpClient, GatewayConfigStub, TimeProviderStub)
 
-    whenReady(gateway.createAccessToken(AuthTokenRequestFactory.build())) { accessToken =>
-      accessToken.access_token shouldBe "stub-access-token"
+    whenReady(gateway.createAccessToken(AuthTokenRequestFactory.build())) { response =>
+      response.access_token shouldBe "stub-access-token"
     }
   }
 
