@@ -1,6 +1,6 @@
 package gateways
 
-import gateways.testDoubles.{GatewayConfigStub, HttpClientSpy}
+import gateways.testDoubles.{GatewayConfigStub, HttpClientSpy, HttpClientStub, TimeProviderStub}
 import play.api.libs.json.Json
 
 class SlackGatewayTest extends BaseSpec {
@@ -18,6 +18,30 @@ class SlackGatewayTest extends BaseSpec {
 
     whenReady(gateway.postMessage("john", "hello john!")) { _ =>
       httpClientSpy.wasPostedWith.get shouldBe expected
+    }
+  }
+
+  "SlackGateway" should "transform members" in {
+    val sampleJson = Some(
+      """
+        |[
+        |    {
+        |        "id": "1",
+        |        "real_name": "a",
+        |        "profile": {
+        |           "real_name": "A B"
+        |        }
+        |    }
+        |]
+      """.stripMargin)
+    val httpClient = new HttpClientStub()
+    httpClient.stubbedJson = sampleJson
+
+    val gateway = new SlackGatewayImpl(httpClient, GatewayConfigStub)
+
+    val token = ""
+    whenReady(gateway.getMembers(token)) { members =>
+      members.size shouldBe 1
     }
   }
 

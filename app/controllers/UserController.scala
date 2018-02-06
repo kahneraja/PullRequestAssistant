@@ -3,9 +3,10 @@ package controllers
 import javax.inject._
 
 import domain.GitHub.Org
+import gateways.SlackGateway
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
-import repositories.OrgRepository
+import repositories.{OrgRepository, UserRepository}
 import requests.AddOrgRequest
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -17,7 +18,9 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class UserController @Inject()(
   cc: ControllerComponents,
-  orgRepository: OrgRepository
+  orgRepository: OrgRepository,
+  userRepository: UserRepository,
+  slackGatway: SlackGateway
 )(implicit ec: ExecutionContext)
   extends AbstractController(cc) {
 
@@ -41,6 +44,16 @@ class UserController @Inject()(
   def getOrgs(userId: String): Action[AnyContent] = Action.async {
     orgRepository.findByUserId(userId).map { orgs =>
       Ok(Json.toJson(orgs))
+    }
+  }
+
+  def getSlackMembers(userId: String): Action[AnyContent] = Action.async {
+    userRepository.find(userId).flatMap {
+      case Some(user) =>
+        slackGatway.getMembers(user.slackToken).map { members =>
+          Ok(Json.toJson(members))
+        }
+      case _ => Future.successful(BadRequest(Json.obj()))
     }
   }
 }

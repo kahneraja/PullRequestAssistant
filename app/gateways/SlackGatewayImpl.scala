@@ -2,7 +2,7 @@ package gateways
 
 import javax.inject.Inject
 
-import domain.Slack.{AuthTokenRequest, AuthTokenResponse}
+import domain.Slack.{AuthTokenRequest, AuthTokenResponse, Member}
 import play.api.libs.json.{JsValue, Json}
 
 import scala.concurrent.ExecutionContext.Implicits._
@@ -12,6 +12,18 @@ class SlackGatewayImpl @Inject()(
   httpClient: HttpClient,
   config: GatewayConfig
 ) extends SlackGateway {
+
+  def getMembers(token: String): Future[List[Member]] = {
+    val url = "https://slack.com/api/users.list?limit=200"
+    val headers: (String, String) = {
+      "Authorization" -> s"Bearer ${token}"
+    }
+
+    httpClient.get(url, headers)
+      .map { jsValue ⇒
+        (jsValue \ "members").as[List[Member]]
+      }
+  }
 
   def postMessage(channel: String, text: String): Future[JsValue] = {
     val headers: (String, String) = {
