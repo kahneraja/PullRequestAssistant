@@ -24,7 +24,8 @@ class SlackGatewayTest extends BaseSpec {
   "SlackGateway" should "transform members" in {
     val sampleJson = Some(
       """
-        |[
+        |{
+        |  "members": [
         |    {
         |        "id": "1",
         |        "real_name": "a",
@@ -32,7 +33,8 @@ class SlackGatewayTest extends BaseSpec {
         |           "real_name": "A B"
         |        }
         |    }
-        |]
+        |  ]
+        |}
       """.stripMargin)
     val httpClient = new HttpClientStub()
     httpClient.stubbedJson = sampleJson
