@@ -37,4 +37,10 @@ class UserController @Inject()(
       }
     )
   }
+
+  def getOrgs(userId: String): Action[AnyContent] = Action.async {
+    orgRepository.findByUserId(userId).map { orgs =>
+      Ok(Json.toJson(orgs))
+    }
+  }
 }

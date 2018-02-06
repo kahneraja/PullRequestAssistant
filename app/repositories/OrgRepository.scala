@@ -9,4 +9,5 @@ import scala.concurrent.Future
 trait OrgRepository {
   def insert(repo: Org)(implicit writer: OWrites[Org]): Future[WriteResult]
   def find(id: Int): Future[Option[Org]]
+  def findByUserId(id: String): Future[List[Org]]
 }
